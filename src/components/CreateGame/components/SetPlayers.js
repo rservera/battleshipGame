@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import Input from './Input';
+import Input from 'components/shared/Input';
 
 export default function SetPlayers() {
   const [player1Name, setPlayer1Name] = useState('Player 1');

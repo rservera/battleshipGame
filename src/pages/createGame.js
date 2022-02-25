@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import SetPlayers from 'components/SetPlayers';
-import SetBoardSize from 'components/SetBoardSize';
+import SetPlayers from 'components/CreateGame/components/SetPlayers';
+import SetBoardSize from 'components/CreateGame/components/SetBoardSize';
 
 export default function CreateGame() {
   const [allowSinkShipFeedback, setAllowSinkShipFeedback] = useState(true);

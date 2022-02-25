@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import SetPlayers from 'components/CreateGame/components/SetPlayers';
 import SetBoardSize from 'components/CreateGame/components/SetBoardSize';
 import { useSelector, useDispatch } from 'react-redux';
@@ -9,6 +9,7 @@ import { setBoardConfiguration } from 'store/boardConfiguration/boardConfigurati
 
 export default function CreateGame() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const shipSunkFeedback = useSelector(getShipSunkFeedback);
   const columnsAmount = useSelector(getColumns);
   const rowsAmount = useSelector(getRows);
@@ -28,6 +29,7 @@ export default function CreateGame() {
       tempBoard.push(cellInfo);
     }
     dispatch(setBoardConfiguration(tempBoard));
+    navigate('/place-ships');
   }
 
   return (
@@ -51,9 +53,6 @@ export default function CreateGame() {
           Create new game
         </button>
       </div>
-      <Link to="/place-ships">
-        <button type="button">Go to place ships</button>
-      </Link>
     </>
   );
 }

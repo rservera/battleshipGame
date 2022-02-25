@@ -1,10 +1,12 @@
-import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import SetPlayers from 'components/CreateGame/components/SetPlayers';
 import SetBoardSize from 'components/CreateGame/components/SetBoardSize';
+import { useSelector, useDispatch } from 'react-redux';
+import { getShipSunkFeedback, setShipSunkFeedback } from 'store/gameConfiguration/gameConfigurationSlice';
 
 export default function CreateGame() {
-  const [allowSinkShipFeedback, setAllowSinkShipFeedback] = useState(true);
+  const dispatch = useDispatch();
+  const shipSunkFeedback = useSelector(getShipSunkFeedback);
   return (
     <>
       <h1>CreateGame</h1>
@@ -14,8 +16,8 @@ export default function CreateGame() {
         <label htmlFor="sink-feedback-option">
           <input
             type="checkbox"
-            checked={allowSinkShipFeedback}
-            onChange={() => setAllowSinkShipFeedback(!allowSinkShipFeedback)}
+            checked={shipSunkFeedback}
+            onChange={() => dispatch(setShipSunkFeedback(!shipSunkFeedback))}
             id="sink-feedback-option"
           />
           Let me know when a ship has been sunk
@@ -24,7 +26,7 @@ export default function CreateGame() {
       <div>
         send feedback:
         {' '}
-        {allowSinkShipFeedback ? 'true' : 'false'}
+        {shipSunkFeedback ? 'true' : 'false'}
       </div>
       <div><button type="submit">Create new game</button></div>
       <Link to="/game">

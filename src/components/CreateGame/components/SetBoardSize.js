@@ -1,8 +1,13 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import {
+  getColumns, setColumns, getRows, setRows,
+} from 'store/gameConfiguration/gameConfigurationSlice';
 
 export default function SetBoardSize() {
-  const [columnsAmount, setColumnsAmount] = useState(10);
-  const [rowsAmount, setRowsAmount] = useState(10);
+  const dispatch = useDispatch();
+  const columns = useSelector(getColumns);
+  const rows = useSelector(getRows);
   const [customSize, setCustomSize] = useState(false);
 
   const defaultBoardSizes = [
@@ -26,22 +31,18 @@ export default function SetBoardSize() {
 
   const boardSizesOptions = [10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
 
-  function changeBoardColumnsAmount(columns) {
-    if (columns !== columnsAmount) {
-      setColumnsAmount(columns);
-    }
+  function changeBoardColumnsAmount(columnsAmount) {
+    dispatch(setColumns(columnsAmount));
   }
 
-  function changeBoardRowsAmount(rows) {
-    if (rows !== rowsAmount) {
-      setRowsAmount(rows);
-    }
+  function changeBoardRowsAmount(rowsAmount) {
+    dispatch(setRows(rowsAmount));
   }
 
-  function changeBoardSize(columns, rows) {
+  function changeBoardSize(columnsAmount, rowsAmount) {
     setCustomSize(false);
-    changeBoardColumnsAmount(columns);
-    changeBoardRowsAmount(rows);
+    dispatch(setColumns(columnsAmount));
+    dispatch(setRows(rowsAmount));
   }
 
   return (
@@ -67,8 +68,8 @@ export default function SetBoardSize() {
           <label htmlFor="custom-columns">
             Columns
             <select
-              onChange={(e) => changeBoardColumnsAmount(e.target.value)}
-              value={columnsAmount}
+              onChange={(e) => changeBoardColumnsAmount(Number(e.target.value))}
+              value={columns}
             >
               {boardSizesOptions.map((option) => (
                 <option value={option} key={`BOARD_SIZE_COLUMNS_OPTION_${option}`}>
@@ -83,8 +84,8 @@ export default function SetBoardSize() {
             <label htmlFor="custom-rows">
               Rows
               <select
-                onChange={(e) => changeBoardRowsAmount(e.target.value)}
-                value={rowsAmount}
+                onChange={(e) => changeBoardRowsAmount(Number(e.target.value))}
+                value={rows}
               >
                 {boardSizesOptions.map((option) => (
                   <option value={option} key={`BOARD_SIZE_ROWS_OPTION_${option}`}>
@@ -100,12 +101,12 @@ export default function SetBoardSize() {
       <div>
         Columns:
         {' '}
-        {columnsAmount}
+        {columns}
       </div>
       <div>
         Rows:
         {' '}
-        {rowsAmount}
+        {rows}
       </div>
     </div>
   );

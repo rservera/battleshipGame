@@ -1,25 +1,30 @@
-import { useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import {
+  getPlayer1Name, getPlayer2Name, getPlayer2User,
+  setPlayer1Name, setPlayer2Name, setPlayer2User,
+} from 'store/gameConfiguration/gameConfigurationSlice';
 import Input from 'components/shared/Input';
 
 export default function SetPlayers() {
-  const [player1Name, setPlayer1Name] = useState('Player 1');
-  const [player2User, setPlayer2User] = useState('CPU');
-  const [player2Name, setPlayer2Name] = useState('CPU');
+  const dispatch = useDispatch();
+  const player1Name = useSelector(getPlayer1Name);
+  const player2Name = useSelector(getPlayer2Name);
+  const player2User = useSelector(getPlayer2User);
 
   function handleSelectCPUAsPlayer2() {
     if (player2User !== 'CPU') {
-      setPlayer2User('CPU');
+      dispatch(setPlayer2User('CPU'));
     }
     if (player2Name !== 'CPU') {
-      setPlayer2Name('CPU');
+      dispatch(setPlayer2Name('CPU'));
     }
   }
 
   function handleSelectUserAsPlayer2() {
     if (player2User !== 'User') {
-      setPlayer2User('User');
+      dispatch(setPlayer2User('User'));
     }
-    setPlayer2Name('Player 2');
+    dispatch(setPlayer2Name('Player 2'));
   }
 
   return (
@@ -28,7 +33,7 @@ export default function SetPlayers() {
         label="Player 1 Name"
         value={player1Name}
         placeholder="Player 1 as default"
-        onChange={(e) => setPlayer1Name(e.target.value)}
+        onChange={(e) => dispatch(setPlayer1Name(e.target.value))}
       />
       <div>Player 2</div>
       <button type="button" onClick={() => handleSelectUserAsPlayer2()}>Player 2</button>
@@ -38,7 +43,7 @@ export default function SetPlayers() {
           label="Player 2 Name"
           value={player2Name}
           placeholder="Player 2 as default"
-          onChange={(e) => setPlayer2Name(e.target.value)}
+          onChange={(e) => dispatch(setPlayer2Name(e.target.value))}
         />
       )}
       <div>{player1Name}</div>

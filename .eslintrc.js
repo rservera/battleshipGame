@@ -23,6 +23,7 @@ module.exports = {
     'react/jsx-filename-extension': 'off',
     'import/extensions': 'off',
     'import/no-absolute-path': 'off',
+    'no-param-reassign': 0,
   },
   settings: {
     'import/resolver': {

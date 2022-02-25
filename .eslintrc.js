@@ -24,6 +24,8 @@ module.exports = {
     'import/extensions': 'off',
     'import/no-absolute-path': 'off',
     'no-param-reassign': 0,
+    'no-undef': 'off',
+    'no-plusplus': 'off',
   },
   settings: {
     'import/resolver': {

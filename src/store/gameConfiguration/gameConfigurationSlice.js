@@ -1,8 +1,8 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
-  columns: 12,
-  rows: 12,
+  columns: 10,
+  rows: 10,
   player1Name: 'Player 1',
   player2Name: 'CPU',
   player2User: 'CPU',

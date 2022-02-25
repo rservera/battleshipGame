@@ -98,16 +98,6 @@ export default function SetBoardSize() {
         </div>
       </div>
       )}
-      <div>
-        Columns:
-        {' '}
-        {columns}
-      </div>
-      <div>
-        Rows:
-        {' '}
-        {rows}
-      </div>
     </div>
   );
 }

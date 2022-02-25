@@ -46,8 +46,6 @@ export default function SetPlayers() {
           onChange={(e) => dispatch(setPlayer2Name(e.target.value))}
         />
       )}
-      <div>{player1Name}</div>
-      <div>{player2Name}</div>
     </div>
   );
 }

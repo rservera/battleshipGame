@@ -16,6 +16,19 @@
     align-items: center;
 }
 
+.board-cell.was-fired.has-ship {
+    background: orange;
+}
+
+.board-cell.was-fired:not(.has-ship) {
+    background: lightblue;
+}
+
+.board-cell.is-sunk {
+    background: red !important;
+}
+
+
 /* Game */
 
 .game-main-wrapper {

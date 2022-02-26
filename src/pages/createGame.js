@@ -35,6 +35,7 @@ export default function CreateGame() {
       cellInfo.isLastInRow = (i + 1) % columns === 0;
       cellInfo.hasShip = false;
       cellInfo.wasFired = false;
+      cellInfo.hasShipSunk = false;
       tempBoard.push(cellInfo);
       tempAvailableFireOptions.push(i);
     }

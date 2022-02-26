@@ -6,26 +6,42 @@ const initialState = {
     {
       name: 'Carrier',
       position: [0, 1, 2, 3],
+      size: 4,
+      hitsReceived: 0,
+      isSunk: false,
     },
     {
-      name: 'Cruiser',
+      name: 'Cruiser #1',
       position: [42, 43, 44],
+      size: 3,
+      hitsReceived: 0,
+      isSunk: false,
     },
     {
-      name: 'Cruiser',
+      name: 'Cruiser #2',
       position: [38, 48, 58],
+      size: 3,
+      hitsReceived: 0,
+      isSunk: false,
     },
     {
-      name: 'Cruiser',
+      name: 'Cruiser #3',
       position: [74, 84, 94],
+      size: 3,
+      hitsReceived: 0,
+      isSunk: false,
     },
     {
       name: 'Submarine',
       position: [40, 50],
+      size: 2,
+      hitsReceived: 0,
+      isSunk: false,
     },
   ],
   availableFireOptions: [],
   shipsPositions: [],
+  shipsSunk: 0,
 };
 
 const player2Board = createSlice({
@@ -38,11 +54,14 @@ const player2Board = createSlice({
     setPlayer2AvailableFireOptions: (state, action) => {
       state.availableFireOptions = action.payload;
     },
-    setPlayer1Ships: (state, action) => {
+    setPlayer2Ships: (state, action) => {
       state.ships = action.payload;
     },
     setPlayer2ShipsPositions: (state, action) => {
       state.shipsPositions = action.payload;
+    },
+    setPlayer2ShipsSunk: (state, action) => {
+      state.shipsSunk = action.payload;
     },
   },
 });
@@ -50,13 +69,15 @@ const player2Board = createSlice({
 export const {
   setPlayer2Board,
   setPlayer2AvailableFireOptions,
-  setPlayer1Ships,
+  setPlayer2Ships,
   setPlayer2ShipsPositions,
+  setPlayer2ShipsSunk,
 } = player2Board.actions;
 
 export const getPlayer2Board = (state) => state.player2Board.board;
 export const getPlayer2AvailableFireOptions = (state) => state.player2Board.availableFireOptions;
 export const getPlayer2Ships = (state) => state.player2Board.ships;
 export const getPlayer2ShipsPositions = (state) => state.player2Board.shipsPositions;
+export const getPlayer2ShipsSunk = (state) => state.player2Board.shipsSunk;
 
 export default player2Board.reducer;

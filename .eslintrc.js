@@ -27,6 +27,10 @@ module.exports = {
     'no-undef': 'off',
     'no-plusplus': 'off',
     'array-callback-return': 'off',
+    'jsx-a11y/click-events-have-key-events': 'off',
+    'jsx-a11y/no-static-element-interactions': 'off',
+    'max-len': 'off',
+    'no-multi-assign': 'off',
   },
   settings: {
     'import/resolver': {

@@ -3,8 +3,9 @@
 .board {
     display: grid;
     border: 1px solid #444444;
-    width: calc(60vw - 40px);
-    height: calc(60vh - 40px);
+    grid-auto-rows: 1fr;
+    width: 300px;
+    height: 300px;
 
 }
 
@@ -13,4 +14,11 @@
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+/* Game */
+
+.game-main-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 200px 1fr;
 }

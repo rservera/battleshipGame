@@ -1,1 +1,16 @@
+/* Place Ships */
 
+.board {
+    display: grid;
+    border: 1px solid #444444;
+    width: calc(60vw - 40px);
+    height: calc(60vh - 40px);
+
+}
+
+.board-cell {
+    border: 1px solid #444444;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

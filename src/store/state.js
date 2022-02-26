@@ -1,10 +1,12 @@
 import { configureStore, combineReducers } from '@reduxjs/toolkit';
 import gameConfiguration from './gameConfiguration/gameConfigurationSlice';
-import boardConfiguration from './boardConfiguration/boardConfigurationSlice';
+import player1Board from './boardConfiguration/player1BoardSlice';
+import player2Board from './boardConfiguration/player2BoardSlice';
 
 const allReducers = combineReducers({
   gameConfiguration,
-  boardConfiguration,
+  player1Board,
+  player2Board,
 });
 
 const store = configureStore({

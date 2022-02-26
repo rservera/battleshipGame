@@ -26,6 +26,7 @@ module.exports = {
     'no-param-reassign': 0,
     'no-undef': 'off',
     'no-plusplus': 'off',
+    'array-callback-return': 'off',
   },
   settings: {
     'import/resolver': {

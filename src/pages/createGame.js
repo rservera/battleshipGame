@@ -5,7 +5,12 @@ import { useSelector, useDispatch } from 'react-redux';
 import {
   getShipSunkFeedback, setShipSunkFeedback, getColumns, getRows,
 } from 'store/gameConfiguration/gameConfigurationSlice';
-import { setBoardConfiguration } from 'store/boardConfiguration/boardConfigurationSlice';
+import {
+  setPlayer1Board, setPlayer1AvailableFireOptions,
+} from 'store/boardConfiguration/player1BoardSlice';
+import {
+  setPlayer2Board, setPlayer2AvailableFireOptions,
+} from 'store/boardConfiguration/player2BoardSlice';
 
 export default function CreateGame() {
   const dispatch = useDispatch();
@@ -17,18 +22,28 @@ export default function CreateGame() {
   function handleCreateBoard(columns, rows) {
     const totalCells = columns * rows;
     const board = [];
+    const availableFireOptions = [];
     const tempBoard = JSON.parse(JSON.stringify(board));
-    // Add objects to board array for each board cell
+    const tempAvailableFireOptions = JSON.parse(JSON.stringify(availableFireOptions));
+    // Add objects to boards arrays for each board cell
     for (let i = 0; i < totalCells; i++) {
       const cellInfo = {};
-      cellInfo.index = i;
+      cellInfo.id = i;
       cellInfo.isFirstRow = i < columns;
       cellInfo.isLastRow = i > totalCells - columns - 1;
       cellInfo.isFirstInRow = i % columns === 0;
       cellInfo.isLastInRow = (i + 1) % columns === 0;
+      cellInfo.hasShip = false;
+      cellInfo.wasFired = false;
       tempBoard.push(cellInfo);
+      tempAvailableFireOptions.push(i);
     }
-    dispatch(setBoardConfiguration(tempBoard));
+    // Create players boards and configurations
+    dispatch(setPlayer1Board(tempBoard));
+    dispatch(setPlayer2Board(tempBoard));
+    dispatch(setPlayer1AvailableFireOptions(Array.from(Array(tempBoard.length).keys())));
+    dispatch(setPlayer2AvailableFireOptions(Array.from(Array(tempBoard.length).keys())));
+    // Redirect user to Place Ships page
     navigate('/place-ships');
   }
 

@@ -29,8 +29,10 @@ export default function CreateGame() {
     for (let i = 0; i < totalCells; i++) {
       const cellInfo = {};
       cellInfo.id = i;
-      cellInfo.isFirstRow = i < columns;
-      cellInfo.isLastRow = i > totalCells - columns - 1;
+      cellInfo.row = Math.floor(i / rows) + 1;
+      cellInfo.column = (i % columns) + 1;
+      cellInfo.isInFirstRow = i < columns;
+      cellInfo.isInLastRow = i > totalCells - columns - 1;
       cellInfo.isFirstInRow = i % columns === 0;
       cellInfo.isLastInRow = (i + 1) % columns === 0;
       cellInfo.hasShip = false;

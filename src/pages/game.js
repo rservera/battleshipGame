@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import {
   setPlayerTurn, getPlayerTurn,
+  getCPUBestFireOptions, setCPUBestFireOptions,
 } from 'store/game/gameSlice';
 import {
   getPlayer1Name, getPlayer2Name, getColumns,
@@ -36,10 +37,7 @@ export default function Game() {
   let player1ShipsSunk = useSelector(getPlayer1ShipsSunk);
   let player2ShipsSunk = useSelector(getPlayer2ShipsSunk);
   const player2User = useSelector(getPlayer2User);
-
-  function doCPUFire() {
-    alert('Turno de la CPU');
-  }
+  const CPUBestFireOptions = useSelector(getCPUBestFireOptions);
 
   function doFire(id, player, hasShip) {
     const tempPlayer1Board = JSON.parse(JSON.stringify(player1Board));
@@ -111,11 +109,46 @@ export default function Game() {
       dispatch(setPlayer1AvailableFireOptions(tempPlayer1AvailableFireOptions));
       dispatch(setPlayer1Board(tempPlayer1Board));
     }
+    // CPU turn
+    if (player === 'player1' && player2User === 'CPU') {
+      // Choose an option related to a previous fire or get a random option
+      if (CPUBestFireOptions.length) {
+        console.log('Tengo fire options');
+      } else {
+        const oppenentCellInfo = player1Board[Math.floor(Math.random() * player1Board.length)];
+        console.log('opponent cell info', oppenentCellInfo);
+        const firedCellID = oppenentCellInfo.id;
+        console.log(firedCellID);
+        const isFireSuccess = oppenentCellInfo.hasShip;
+        console.log(isFireSuccess);
+        // TODO: Test that wasFired is false
+        const firedCellColumn = oppenentCellInfo.column;
+        const firedCellRow = oppenentCellInfo.row;
+        console.log(firedCellColumn);
+        console.log(firedCellRow);
+        if (isFireSuccess) {
+          console.log('Barco');
+          // Get adyacent cells
+          const closestCellToRight = !oppenentCellInfo.isLastInRow ? player1Board[firedCellID + 1] : null;
+          const closestCellToLeft = !oppenentCellInfo.isFirstInRow ? player1Board[firedCellID - 1] : null;
+          const closestCellToTop = !oppenentCellInfo.isInFirstRow ? player1Board[firedCellID - columns] : null;
+          const closestCellToBottom = !oppenentCellInfo.isInLastRow ? player1Board[firedCellID + columns] : null;
+          // Group them into an array and remove the null and previously fired ones to create next fire options
+          const closestCells = [];
+          closestCells.push(closestCellToRight, closestCellToLeft, closestCellToTop, closestCellToBottom);
+          const nextFireOptions = closestCells.filter((e) => e != null);
+          nextFireOptions.forEach((option) => (
+            console.log(option)
+          ));
+          dispatch(setCPUBestFireOptions(nextFireOptions));
+        } else {
+          console.log('Agua');
+        }
+      }
+      dispatch(setPlayerTurn('player1'));
+    }
     // Change fire turn
     dispatch(setPlayerTurn(player === 'player1' ? 'player2' : 'player1'));
-    if (player === 'player1' && player2User === 'CPU') {
-      doCPUFire();
-    }
   }
   return (
     <div>
@@ -135,6 +168,7 @@ export default function Game() {
                 onClick={(playerTurn === 'player2' && !cell.wasFired) ? () => doFire(cell.id, playerTurn, cell.hasShip) : null}
                 key={cell.id}
               >
+                {cell.id}
                 {cell.hasShip ? 'x' : ''}
               </div>
             ))}

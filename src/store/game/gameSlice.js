@@ -3,7 +3,7 @@ import { createSlice } from '@reduxjs/toolkit';
 const initialState = {
   playerTurn: 'player1',
   CPUBestFireOptions: [],
-  CPUPreferredFireDirection: 'toRight',
+  CPUPreferredFireDirection: null,
   CPULastFireWasSuccess: false,
   CPUFirstFireSuccessCellID: null,
 };

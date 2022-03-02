@@ -290,7 +290,7 @@ export default function Game() {
       if (!opponentCellInfo) {
         console.log('opponentCellInfo antes de 292', opponentCellInfo);
         opponentCellInfo = getRandomAvailableCell(tempPlayer1Board, tempPlayer1AvailableFireOptions);
-        console.log('opponentCellInfo despues de 309', opponentCellInfo);
+        console.log('opponentCellInfo despues de 292', opponentCellInfo);
         dispatch(setCPUBestFireOptions([]));
         dispatch(setCPUPreferredFireDirection(null));
         dispatch(setCPUFirstFireSuccessCellID(null));

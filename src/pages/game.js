@@ -17,7 +17,6 @@ import {
 } from 'store/boardConfiguration/player1BoardSlice';
 import {
   setPlayer2Board, getPlayer2Board,
-  setPlayer2AvailableFireOptions, getPlayer2AvailableFireOptions,
   setPlayer2Ships, getPlayer2Ships,
   setPlayer2ShipsSunk, getPlayer2ShipsSunk,
 } from 'store/boardConfiguration/player2BoardSlice';
@@ -35,7 +34,6 @@ export default function Game() {
   const player2Ships = useSelector(getPlayer2Ships);
   const playerTurn = useSelector(getPlayerTurn);
   const player1AvailableFireOptions = useSelector(getPlayer1AvailableFireOptions);
-  const player2AvailableFireOptions = useSelector(getPlayer2AvailableFireOptions);
   const shipSunkFeedback = useSelector(getShipSunkFeedback);
   const CPUBestFireOptions = useSelector(getCPUBestFireOptions);
   const CPUPreferredFireDirection = useSelector(getCPUPreferredFireDirection);
@@ -131,7 +129,6 @@ export default function Game() {
     const tempPlayer1Board = JSON.parse(JSON.stringify(player1Board));
     const tempPlayer2Board = JSON.parse(JSON.stringify(player2Board));
     const tempPlayer1AvailableFireOptions = JSON.parse(JSON.stringify(player1AvailableFireOptions));
-    const tempPlayer2AvailableFireOptions = JSON.parse(JSON.stringify(player2AvailableFireOptions));
     const tempPlayer1Ships = JSON.parse(JSON.stringify(player1Ships));
     const tempPlayer2Ships = JSON.parse(JSON.stringify(player2Ships));
     const tempCPUBestFireOptions = JSON.parse(JSON.stringify(CPUBestFireOptions));
@@ -183,12 +180,7 @@ export default function Game() {
     }
 
     // Remove cell from available options array
-    if (player === 'player1') {
-      const player2FiredCell = tempPlayer2AvailableFireOptions.indexOf(id);
-      if (player2FiredCell > -1) {
-        tempPlayer2AvailableFireOptions.splice(player2FiredCell, 1);
-      }
-    } else {
+    if (player === 'player2') {
       const player1FiredCell = tempPlayer1AvailableFireOptions.indexOf(id);
       if (player1FiredCell > -1) {
         tempPlayer1AvailableFireOptions.splice(player1FiredCell, 1);
@@ -200,7 +192,6 @@ export default function Game() {
       if (JSON.stringify(player2Ships) !== JSON.stringify(tempPlayer2Ships)) {
         dispatch(setPlayer2Ships(tempPlayer2Ships));
       }
-      dispatch(setPlayer2AvailableFireOptions(tempPlayer2AvailableFireOptions));
       dispatch(setPlayer2Board(tempPlayer2Board));
     } else {
       if (JSON.stringify(player1Ships) !== JSON.stringify(tempPlayer1Ships)) {
@@ -286,19 +277,20 @@ export default function Game() {
         /*                              */
         /** *************************** */
         // If there aren't best fire options stored fire to a random cell
-        console.log('opponentCellInfo antes del random de 297', opponentCellInfo);
+        console.log('opponentCellInfo antes del random de 281', opponentCellInfo);
         opponentCellInfo = getRandomAvailableCell(tempPlayer1Board, tempPlayer1AvailableFireOptions);
-        console.log('opponentCellInfo despues del random de 297', opponentCellInfo);
+        console.log('opponentCellInfo despues del random de 281', opponentCellInfo);
         if (opponentCellInfo?.hasShip) {
           // If a ship is hit, build smarter options for next shot
           buildSmartCPUFireOptions(opponentCellInfo, tempPlayer1Board, columns);
         }
       }
 
-      console.log('opponentCellInfo antes de 309', opponentCellInfo);
       // If random selection failed, give a next try
       if (!opponentCellInfo) {
+        console.log('opponentCellInfo antes de 292', opponentCellInfo);
         opponentCellInfo = getRandomAvailableCell(tempPlayer1Board, tempPlayer1AvailableFireOptions);
+        console.log('opponentCellInfo despues de 309', opponentCellInfo);
         dispatch(setCPUBestFireOptions([]));
         dispatch(setCPUPreferredFireDirection(null));
         dispatch(setCPUFirstFireSuccessCellID(null));
@@ -307,12 +299,12 @@ export default function Game() {
           buildSmartCPUFireOptions(opponentCellInfo, tempPlayer1Board, columns);
         }
       }
-      console.log('opponentCellInfo despues de 309', opponentCellInfo);
 
-      console.log('opponentCellInfo antes de 324', opponentCellInfo);
       // If random selection failed, give a next try
       if (!opponentCellInfo) {
+        console.log('opponentCellInfo antes de 307', opponentCellInfo);
         opponentCellInfo = getRandomAvailableCell(tempPlayer1Board, tempPlayer1AvailableFireOptions);
+        console.log('opponentCellInfo despues de 307', opponentCellInfo);
         dispatch(setCPUBestFireOptions([]));
         dispatch(setCPUPreferredFireDirection(null));
         dispatch(setCPUFirstFireSuccessCellID(null));
@@ -321,7 +313,6 @@ export default function Game() {
           buildSmartCPUFireOptions(opponentCellInfo, tempPlayer1Board, columns);
         }
       }
-      console.log('opponentCellInfo despues de 324', opponentCellInfo);
 
       // Remove cell from available options array
       const opponentCellID = opponentCellInfo.id;

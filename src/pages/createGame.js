@@ -9,7 +9,7 @@ import {
   setPlayer1Board, setPlayer1AvailableFireOptions,
 } from 'store/boardConfiguration/player1BoardSlice';
 import {
-  setPlayer2Board, setPlayer2AvailableFireOptions,
+  setPlayer2Board,
 } from 'store/boardConfiguration/player2BoardSlice';
 
 export default function CreateGame() {
@@ -44,7 +44,6 @@ export default function CreateGame() {
     dispatch(setPlayer1Board(tempBoard));
     dispatch(setPlayer2Board(tempBoard));
     dispatch(setPlayer1AvailableFireOptions(Array.from(Array(tempBoard.length).keys())));
-    dispatch(setPlayer2AvailableFireOptions(Array.from(Array(tempBoard.length).keys())));
     // Redirect user to Place Ships page
     navigate('/place-ships');
   }

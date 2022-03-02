@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import {
-  getColumns, getPlayer1Name, getPlayer2Name, getPlayer2User,
+  getPlayer1Name, getPlayer2Name, getPlayer2User,
+  getColumns, getShips,
 } from 'store/gameConfiguration/gameConfigurationSlice';
 import {
   getPlayer1Board, getPlayer1Ships, getPlayer1ShipsPositions,
@@ -12,6 +13,10 @@ import {
   getPlayer2Board, getPlayer2Ships, getPlayer2ShipsPositions,
   setPlayer2ShipsPositions, setPlayer2Board,
 } from 'store/boardConfiguration/player2BoardSlice';
+import {
+  getOrientation, setOrientation,
+  getCurrentShipSize, setCurrentShipSize,
+} from 'store/placeShips/placeShipsSlice';
 
 export default function PlaceShips() {
   const [currentUser, setCurrentUser] = useState(1);
@@ -31,6 +36,9 @@ export default function PlaceShips() {
   const player2ShipsPositions = useSelector(getPlayer2ShipsPositions);
 
   const columns = useSelector(getColumns);
+  const ships = useSelector(getShips);
+  const orientation = useSelector(getOrientation);
+  const currentShipSize = useSelector(getCurrentShipSize);
 
   // Redirect user to Create Game page if this page is reloaded
   useEffect(() => {
@@ -57,6 +65,33 @@ export default function PlaceShips() {
       </div>
     );
   }
+
+  function selectShipToBePlaced(size) {
+    if (currentShipSize !== size) { dispatch(setCurrentShipSize(size)); }
+  }
+
+  function buildShip(name, size, shipKey) {
+    const sizeArray = Array.from(Array(size).keys());
+    return (
+      <div className="ship-wrapper" key={shipKey}>
+        <div className="ship-name">
+          {name}
+        </div>
+        <div className={`ship orientation-${orientation}`} onClick={() => selectShipToBePlaced(size)}>
+          {sizeArray.map((cell, index) => {
+            const key = `SHIP_CELL_${index}`;
+            return <div key={key} />;
+          })}
+        </div>
+      </div>
+    );
+  }
+
+  document.body.onkeyup = function handleRotateShip(e) {
+    if (e.keyCode === 32) {
+      dispatch(setOrientation(orientation === 'horizontal' ? 'vertical' : 'horizontal'));
+    }
+  };
 
   function handleStartGame() {
     // Map players ships and dispatch ship positions to state
@@ -111,7 +146,28 @@ export default function PlaceShips() {
             })}
         </div>
       </div>
-      <div className="ship-selection-wrapper">
+      <div className="ship-selection-controls-wrapper">
+        <div className={`ships-wrapper orientation-${orientation}`}>
+          {ships.map((ship, index) => {
+            const shipKey = `SHIP_${index}`;
+            return buildShip(ship.name, ship.size, shipKey);
+          })}
+        </div>
+        <div>
+          Current ship size:
+          {currentShipSize}
+        </div>
+        <div>
+          Click rotate button or press space bar to rotate ships
+        </div>
+        <div>
+          <button
+            type="button"
+            onClick={() => dispatch(setOrientation(orientation === 'horizontal' ? 'vertical' : 'horizontal'))}
+          >
+            Rotate
+          </button>
+        </div>
         { (currentUser === 1 && player2User === 'User')
           ? <button type="button" onClick={() => setCurrentUser(2)}>Place Player 2 boats</button>
           : goToGameButton }

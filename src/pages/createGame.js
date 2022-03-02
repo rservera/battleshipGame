@@ -11,6 +11,9 @@ import {
 import {
   setPlayer2Board,
 } from 'store/boardConfiguration/player2BoardSlice';
+import {
+  setShipsPlacementBoard,
+} from 'store/placeShips/placeShipsSlice';
 
 export default function CreateGame() {
   const dispatch = useDispatch();
@@ -40,10 +43,22 @@ export default function CreateGame() {
       tempBoard.push(cellInfo);
       tempAvailableFireOptions.push(i);
     }
+
+    const shipsPlacementBoard = [];
+    for (let i = 0; i < totalCells; i++) {
+      const placementCellInfo = {};
+      placementCellInfo.id = i;
+      placementCellInfo.hasShip = false;
+      placementCellInfo.row = Math.floor((i / columns) + 1);
+      placementCellInfo.column = Math.floor((i % columns) + 1);
+      shipsPlacementBoard.push(placementCellInfo);
+    }
+
     // Create players boards and configurations
     dispatch(setPlayer1Board(tempBoard));
     dispatch(setPlayer2Board(tempBoard));
     dispatch(setPlayer1AvailableFireOptions(Array.from(Array(tempBoard.length).keys())));
+    dispatch(setShipsPlacementBoard(shipsPlacementBoard));
     // Redirect user to Place Ships page
     navigate('/place-ships');
   }

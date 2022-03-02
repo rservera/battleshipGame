@@ -7,6 +7,28 @@ const initialState = {
   player2Name: 'CPU',
   player2User: 'CPU',
   shipSunkFeedback: false,
+  ships: [
+    {
+      name: 'Carrier',
+      size: 4,
+    },
+    {
+      name: 'Cruiser #1',
+      size: 3,
+    },
+    {
+      name: 'Cruiser #2',
+      size: 3,
+    },
+    {
+      name: 'Cruiser #3',
+      size: 3,
+    },
+    {
+      name: 'Submarine',
+      size: 2,
+    },
+  ],
 };
 
 const gameConfiguration = createSlice({
@@ -31,6 +53,9 @@ const gameConfiguration = createSlice({
     setShipSunkFeedback: (state, action) => {
       state.shipSunkFeedback = action.payload;
     },
+    setShips: (state, action) => {
+      state.ships = action.payload;
+    },
   },
 });
 
@@ -41,6 +66,7 @@ export const {
   setPlayer2Name,
   setPlayer2User,
   setShipSunkFeedback,
+  setShips,
 } = gameConfiguration.actions;
 
 export const getColumns = (state) => state.gameConfiguration.columns;
@@ -49,5 +75,6 @@ export const getPlayer1Name = (state) => state.gameConfiguration.player1Name;
 export const getPlayer2Name = (state) => state.gameConfiguration.player2Name;
 export const getPlayer2User = (state) => state.gameConfiguration.player2User;
 export const getShipSunkFeedback = (state) => state.gameConfiguration.shipSunkFeedback;
+export const getShips = (state) => state.gameConfiguration.ships;
 
 export default gameConfiguration.reducer;

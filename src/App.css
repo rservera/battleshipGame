@@ -41,6 +41,39 @@
     grid-column-end: 3;
 }
 
+.ships-wrapper {
+    display: flex;
+    flex-direction: column;
+}
+
+.ships-wrapper.orientation-vertical {
+    flex-direction: row;
+}
+
+.ships-wrapper.orientation-horizontal > div + div {
+    margin-top: 20px;
+}
+
+.ships-wrapper.orientation-vertical > div + div {
+    margin-left: 20px;
+}
+
+.ship {
+    display: inline-flex;
+    border: 1px solid #333333;
+    cursor: pointer;
+}
+
+.ship.orientation-vertical {
+    flex-direction: column;
+}
+
+.ship > div {
+    border: 1px solid #333333;
+    height: 30px;
+    width: 30px;
+}
+
 /* Game */
 
 .game-main-wrapper {

@@ -4,7 +4,6 @@ const initialState = {
   playerTurn: 'player1',
   CPUBestFireOptions: [],
   CPUPreferredFireDirection: null,
-  CPULastFireWasSuccess: false,
   CPUFirstFireSuccessCellID: null,
 };
 
@@ -21,9 +20,6 @@ const game = createSlice({
     setCPUPreferredFireDirection: (state, action) => {
       state.CPUPreferredFireDirection = action.payload;
     },
-    setCPULastFireWasSuccess: (state, action) => {
-      state.CPULastFireWasSuccess = action.payload;
-    },
     setCPUFirstFireSuccessCellID: (state, action) => {
       state.CPUFirstFireSuccessCellID = action.payload;
     },
@@ -34,14 +30,12 @@ export const {
   setPlayerTurn,
   setCPUBestFireOptions,
   setCPUPreferredFireDirection,
-  setCPULastFireWasSuccess,
   setCPUFirstFireSuccessCellID,
 } = game.actions;
 
 export const getPlayerTurn = (state) => state.game.playerTurn;
 export const getCPUBestFireOptions = (state) => state.game.CPUBestFireOptions;
 export const getCPUPreferredFireDirection = (state) => state.game.CPUPreferredFireDirection;
-export const getCPULastFireWasSuccess = (state) => state.game.CPULastFireWasSuccess;
 export const getCPUFirstFireSuccessCellID = (state) => state.game.CPUFirstFireSuccessCellID;
 
 export default game.reducer;

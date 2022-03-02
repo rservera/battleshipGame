@@ -33,5 +33,5 @@
 
 .game-main-wrapper {
     display: grid;
-    grid-template-columns: auto 1fr auto;
+    grid-template-columns: auto 75px auto;
 }

@@ -1,30 +1,25 @@
-import { Link } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import {
   setPlayerTurn, getPlayerTurn,
-  getCPUBestFireOptions, /* setCPUBestFireOptions, */
-  /* getCPULastFireWasSuccess, */ /* setCPULastFireWasSuccess, */
-  getCPUPreferredFireDirection, /* setCPUPreferredFireDirection, */
-  /*  setCPUFirstFireSuccessCellID, */ getCPUFirstFireSuccessCellID,
-  setCPUBestFireOptions,
-  setCPUFirstFireSuccessCellID,
-  setCPUPreferredFireDirection,
+  setCPUBestFireOptions, getCPUBestFireOptions,
+  setCPUPreferredFireDirection, getCPUPreferredFireDirection,
+  setCPUFirstFireSuccessCellID, getCPUFirstFireSuccessCellID,
 } from 'store/game/gameSlice';
 import {
   getPlayer1Name, getPlayer2Name, getColumns,
   getShipSunkFeedback, getPlayer2User,
 } from 'store/gameConfiguration/gameConfigurationSlice';
 import {
-  getPlayer1Board, setPlayer1Board,
+  setPlayer1Board, getPlayer1Board,
   setPlayer1AvailableFireOptions, getPlayer1AvailableFireOptions,
   getPlayer1Ships, setPlayer1Ships,
   getPlayer1ShipsSunk, setPlayer1ShipsSunk,
 } from 'store/boardConfiguration/player1BoardSlice';
 import {
-  getPlayer2Board, setPlayer2Board,
+  setPlayer2Board, getPlayer2Board,
   setPlayer2AvailableFireOptions, getPlayer2AvailableFireOptions,
-  getPlayer2Ships, setPlayer2Ships,
-  getPlayer2ShipsSunk, setPlayer2ShipsSunk,
+  setPlayer2Ships, getPlayer2Ships,
+  setPlayer2ShipsSunk, getPlayer2ShipsSunk,
 } from 'store/boardConfiguration/player2BoardSlice';
 
 export default function Game() {
@@ -32,92 +27,83 @@ export default function Game() {
 
   const player1Name = useSelector(getPlayer1Name);
   const player2Name = useSelector(getPlayer2Name);
+  const player2User = useSelector(getPlayer2User);
+  const columns = useSelector(getColumns);
   const player1Board = useSelector(getPlayer1Board);
   const player2Board = useSelector(getPlayer2Board);
   const player1Ships = useSelector(getPlayer1Ships);
   const player2Ships = useSelector(getPlayer2Ships);
-  const columns = useSelector(getColumns);
   const playerTurn = useSelector(getPlayerTurn);
   const player1AvailableFireOptions = useSelector(getPlayer1AvailableFireOptions);
   const player2AvailableFireOptions = useSelector(getPlayer2AvailableFireOptions);
   const shipSunkFeedback = useSelector(getShipSunkFeedback);
-  let player1ShipsSunk = useSelector(getPlayer1ShipsSunk);
-  let player2ShipsSunk = useSelector(getPlayer2ShipsSunk);
-  const player2User = useSelector(getPlayer2User);
   const CPUBestFireOptions = useSelector(getCPUBestFireOptions);
-  // const CPULastFireWasSuccess = useSelector(getCPULastFireWasSuccess);
   const CPUPreferredFireDirection = useSelector(getCPUPreferredFireDirection);
   const CPUFirstFireSuccessCellID = useSelector(getCPUFirstFireSuccessCellID);
+  let player1ShipsSunk = useSelector(getPlayer1ShipsSunk);
+  let player2ShipsSunk = useSelector(getPlayer2ShipsSunk);
 
   function getRandomAvailableCell(opponentBoard, availableOptions) {
-    const randomPositionInAvailableOptions = availableOptions[Math.floor(Math.random() * (availableOptions.length + 1))];
-    const availableOptionSelected = availableOptions[randomPositionInAvailableOptions];
-    const availableCell = opponentBoard[availableOptionSelected];
+    const randomNumber = availableOptions[Math.floor(Math.random() * (availableOptions.length + 1))];
+    const optionSelected = availableOptions[randomNumber];
+    const availableCell = opponentBoard[optionSelected];
     return availableCell;
   }
 
-  function buildSmartCPUFireOptions(opponentCellInfo, opponentBoard, columnsAmount, availableOptions) {
+  function buildSmartCPUFireOptions(opponentCellInfo, opponentBoard, columnsAmount) {
     const opponentCellID = opponentCellInfo.id;
 
+    // If the cell to the right is available, get it
     const closestCellToRight = !opponentCellInfo.isLastInRow ? opponentBoard[opponentCellID + 1] : null;
     const hasClosestCellToRight = closestCellToRight !== null;
     let tempClosestCellToRight;
-    if (hasClosestCellToRight) {
+    if (hasClosestCellToRight && !closestCellToRight.wasFired) {
+      // Store that is placed at the right
       tempClosestCellToRight = JSON.parse(JSON.stringify(closestCellToRight));
       tempClosestCellToRight.fireDirection = 'toRight';
-      if (tempClosestCellToRight?.wasFired) {
-        tempClosestCellToRight = null;
-      }
+    } else {
+      tempClosestCellToRight = null;
     }
 
+    // Do the same to the left
     const closestCellToLeft = !opponentCellInfo.isFirstInRow ? opponentBoard[opponentCellID - 1] : null;
     const hasClosestCellToLeft = closestCellToLeft !== null;
     let tempClosestCellToLeft;
-    if (hasClosestCellToLeft) {
+    if (hasClosestCellToLeft && !closestCellToLeft.wasFired) {
       tempClosestCellToLeft = JSON.parse(JSON.stringify(closestCellToLeft));
       tempClosestCellToLeft.fireDirection = 'toLeft';
-      if (tempClosestCellToLeft?.wasFired) {
-        tempClosestCellToLeft = null;
-      }
+    } else {
+      tempClosestCellToLeft = null;
     }
 
+    // To top
     const closestCellToTop = !opponentCellInfo.isInFirstRow ? opponentBoard[opponentCellID - columnsAmount] : null;
     const hasClosestCellToTop = closestCellToTop !== null;
     let tempClosestCellToTop;
-    if (hasClosestCellToTop) {
+    if (hasClosestCellToTop && !closestCellToTop.wasFired) {
       tempClosestCellToTop = JSON.parse(JSON.stringify(closestCellToTop));
       tempClosestCellToTop.fireDirection = 'toTop';
-      if (tempClosestCellToTop?.wasFired) {
-        tempClosestCellToTop = null;
-      }
+    } else {
+      tempClosestCellToTop = null;
     }
 
+    // And to bottom
     const closestCellToBottom = !opponentCellInfo.isInLastRow ? opponentBoard[opponentCellID + columnsAmount] : null;
     const hasClosestCellToBottom = closestCellToBottom !== null;
     let tempClosestCellToBottom;
-    if (hasClosestCellToBottom) {
+    if (hasClosestCellToBottom && !closestCellToBottom.wasFired) {
       tempClosestCellToBottom = JSON.parse(JSON.stringify(closestCellToBottom));
       tempClosestCellToBottom.fireDirection = 'toBottom';
-      if (tempClosestCellToBottom?.wasFired) {
-        tempClosestCellToBottom = null;
-      }
+    } else {
+      tempClosestCellToBottom = null;
     }
 
-    // Group them into an array and remove the null ones to create smart fire options
+    // Group all cells into an array and remove the null ones to create smart fire options
     const closestCells = [];
     closestCells.push(tempClosestCellToRight, tempClosestCellToLeft, tempClosestCellToTop, tempClosestCellToBottom);
     const smartFireOptions = closestCells.filter((e) => e != null);
 
-    console.log('opponentCellInfo antes ---> ', opponentCellInfo);
-    if (opponentCellInfo.wasFired) {
-      opponentCellInfo = getRandomAvailableCell(opponentBoard, availableOptions);
-    }
-
-    console.log('opponentCellInfo despues ---> ', opponentCellInfo);
-
-    console.log('smartFireOptions ---> ', smartFireOptions);
-
-    // dispatch smart fire options to store
+    // Dispatch smart fire options to store
     dispatch(setCPUBestFireOptions(smartFireOptions));
   }
 
@@ -150,14 +136,14 @@ export default function Game() {
     const tempPlayer2Ships = JSON.parse(JSON.stringify(player2Ships));
     const tempCPUBestFireOptions = JSON.parse(JSON.stringify(CPUBestFireOptions));
 
-    // Change player board indicating than the cell was fired
+    // Inform than a cell was fired
     if (player === 'player1') {
       tempPlayer2Board.find((data) => data.id === id).wasFired = true;
     } else {
       tempPlayer1Board.find((data) => data.id === id).wasFired = true;
     }
 
-    // Check if a ship was hit
+    // Inform if a ship was hit
     if (hasShip) {
       let shipHit;
       if (player === 'player1') {
@@ -167,7 +153,7 @@ export default function Game() {
       }
       shipHit.hitsReceived += 1;
 
-      // Check if the ship was sunk
+      // Inform if a ship was sunk
       if (shipHit.hitsReceived === shipHit.size) {
         shipHit.isSunk = true;
         const shipSunkPosition = shipHit.position;
@@ -184,7 +170,7 @@ export default function Game() {
           shipSunkPosition.map((position) => { tempPlayer1Board[position].hasShipSunk = true; });
         }
 
-        // Inform user than a ship was sunk
+        // If is configured to inform users about ships been sunk, inform it
         if (shipSunkFeedback) {
           console.log('Barco hundido');
         }
@@ -235,84 +221,107 @@ export default function Game() {
         // If there is a preferred fire direction, use it
         if (CPUPreferredFireDirection) {
           opponentCellInfo = tempCPUBestFireOptions.find((data) => data.fireDirection === CPUPreferredFireDirection);
-          // If there isn't an available cell in the preferred direction, choose another cell
-          if (
-            !opponentCellInfo
-              || (opponentCellInfo.isLastInRow && CPUPreferredFireDirection === 'toRight')
-              || (opponentCellInfo.isFirstInRow && CPUPreferredFireDirection === 'toLeft')
-              || (opponentCellInfo.isInFirstRow && CPUPreferredFireDirection === 'toTop')
-              || (opponentCellInfo.isInLastRow && CPUPreferredFireDirection === 'toBottom')
-          ) {
-            switchFireDirection(CPUPreferredFireDirection);
-            console.log('opponent cell info antes de 235', opponentCellInfo);
-            buildSmartCPUFireOptions(tempPlayer1Board[CPUFirstFireSuccessCellID], tempPlayer1Board, columns, tempPlayer1AvailableFireOptions);
-            console.log('opponent cell info despues de 235', opponentCellInfo);
-            if (opponentCellInfo?.wasFired) {
-              opponentCellInfo = getRandomAvailableCell(tempPlayer1Board, tempPlayer1AvailableFireOptions);
+          if (opponentCellInfo) {
+            buildSmartCPUFireOptions(opponentCellInfo, tempPlayer1Board, columns);
+            // If CPU fire is in a cell at the boundaries,
+            // change the fire direction and build fire smart option
+            // choosing the first hit cell as starting point
+            if (opponentCellInfo.hasShip && (
+              (opponentCellInfo.isLastInRow && CPUPreferredFireDirection === 'toRight')
+                || (opponentCellInfo.isFirstInRow && CPUPreferredFireDirection === 'toLeft')
+                || (opponentCellInfo.isInFirstRow && CPUPreferredFireDirection === 'toTop')
+                || (opponentCellInfo.isInLastRow && CPUPreferredFireDirection === 'toBottom')
+            )) {
+              switchFireDirection(CPUPreferredFireDirection);
+              buildSmartCPUFireOptions(tempPlayer1Board[CPUFirstFireSuccessCellID], tempPlayer1Board, columns);
             }
-          }
-          // If CPU fire hit water:
-          // 1. Change the fire direction,
-          // 2. Get first cell hit as new starting point
-          if (opponentCellInfo?.hasShip) {
-            console.log('opponent cell info antes de 246', opponentCellInfo);
-            buildSmartCPUFireOptions(opponentCellInfo, tempPlayer1Board, columns, tempPlayer1AvailableFireOptions);
-            console.log('opponent cell info despues de 246', opponentCellInfo);
+            // If there are a preferred fire direction but CPU fire hit water:
+            // 1. Get first cell hit as new starting point
+            // 2. Change the fire direction
+            if (!opponentCellInfo.hasShip
+                || (CPUPreferredFireDirection === 'toLeft' && tempPlayer1Board[CPUFirstFireSuccessCellID].isFirstInRow)
+                || (CPUPreferredFireDirection === 'toRight' && tempPlayer1Board[CPUFirstFireSuccessCellID].isLastInRow)
+                || (CPUPreferredFireDirection === 'toTop' && tempPlayer1Board[CPUFirstFireSuccessCellID].isInFirstRow)
+                || (CPUPreferredFireDirection === 'toBottom' && tempPlayer1Board[CPUFirstFireSuccessCellID].isInLastRow)
+            ) {
+              buildSmartCPUFireOptions(tempPlayer1Board[CPUFirstFireSuccessCellID], tempPlayer1Board, columns);
+              switchFireDirection(CPUPreferredFireDirection);
+              opponentCellInfo = tempCPUBestFireOptions.find((data) => data.fireDirection === CPUPreferredFireDirection);
+              if (opponentCellInfo.wasFired) {
+                dispatch(setCPUBestFireOptions([]));
+                dispatch(setCPUPreferredFireDirection(null));
+                dispatch(setCPUFirstFireSuccessCellID(null));
+                opponentCellInfo = getRandomAvailableCell(tempPlayer1Board, tempPlayer1AvailableFireOptions);
+              }
+            }
           } else {
-            console.log('opponent cell info antes de 250', opponentCellInfo);
-            buildSmartCPUFireOptions(tempPlayer1Board[CPUFirstFireSuccessCellID], tempPlayer1Board, columns, tempPlayer1AvailableFireOptions);
-            console.log('opponent cell info despues de 250', opponentCellInfo);
-            switchFireDirection(CPUPreferredFireDirection);
-            opponentCellInfo = tempCPUBestFireOptions.find((data) => data.fireDirection === CPUPreferredFireDirection);
-            // If after switching direction a ship is hit continue firing in that direction
-            // If water is hit, clear all CPU logic stored
-            if (opponentCellInfo.hasShip) {
-              console.log('opponent cell info antes de 257', opponentCellInfo);
-              buildSmartCPUFireOptions(opponentCellInfo, tempPlayer1Board, columns, tempPlayer1AvailableFireOptions);
-              console.log('opponent cell info despues de 257', opponentCellInfo);
-            } else {
-              // dispatch(setCPUBestFireOptions([]));
-              // console.log('Acabo de borrar las fire options');
-              dispatch(setCPUPreferredFireDirection(null));
-              dispatch(setCPUFirstFireSuccessCellID(null));
-            }
+            // There are cases in which can be an stored direction
+            // and smart fire options and still doesn't have an available cell to be fired
+            // (for example change direction and get a boundary cell without options in that direction)
+            opponentCellInfo = getRandomAvailableCell(tempPlayer1Board, tempPlayer1AvailableFireOptions);
+            dispatch(setCPUBestFireOptions([]));
+            dispatch(setCPUPreferredFireDirection(null));
+            dispatch(setCPUFirstFireSuccessCellID(null));
           }
         } else {
-          // If there isn't a preferred fire direction, select the first item in the array
+          // If there are smart option available
+          // but there isn't a preferred fire direction
+          // select the first item in the array
           [opponentCellInfo] = tempCPUBestFireOptions;
+          // If a ship is hit again, store the fire direction
           if (opponentCellInfo.hasShip) {
-            // If a ship is hit again, store the fire direction
-            console.log('opponent cell info antes de 270', opponentCellInfo);
-            buildSmartCPUFireOptions(opponentCellInfo, tempPlayer1Board, columns, tempPlayer1AvailableFireOptions);
-            console.log('opponent cell info antes de 270', opponentCellInfo);
+            buildSmartCPUFireOptions(opponentCellInfo, tempPlayer1Board, columns);
             dispatch(setCPUPreferredFireDirection(opponentCellInfo.fireDirection));
           } else {
             // If the fire hits water, remove option from smart options stored
-            console.log('Le pegue al agua despues de pegarle a un barco');
             tempCPUBestFireOptions.shift();
             dispatch(setCPUBestFireOptions(tempCPUBestFireOptions));
           }
         }
       } else {
+        /** *************************** */
+        /*                              */
+        /*      ESTO ESTA FALLANDO      */
+        /*       ALEATORIAMENTE         */
+        /*                              */
+        /** *************************** */
         // If there aren't best fire options stored fire to a random cell
+        console.log('opponentCellInfo antes del random de 297', opponentCellInfo);
         opponentCellInfo = getRandomAvailableCell(tempPlayer1Board, tempPlayer1AvailableFireOptions);
-        console.log('opponentCellInfo despues de 290', opponentCellInfo);
+        console.log('opponentCellInfo despues del random de 297', opponentCellInfo);
         if (opponentCellInfo?.hasShip) {
-          // If a ship is hit, get the closest cells to build a smart next shot
-          console.log('opponent cell info antes de 287', opponentCellInfo);
-          buildSmartCPUFireOptions(opponentCellInfo, tempPlayer1Board, columns, tempPlayer1AvailableFireOptions);
-          console.log('opponent cell info despues de 287', opponentCellInfo);
+          // If a ship is hit, build smarter options for next shot
+          buildSmartCPUFireOptions(opponentCellInfo, tempPlayer1Board, columns);
         }
       }
 
+      console.log('opponentCellInfo antes de 309', opponentCellInfo);
+      // If random selection failed, give a next try
       if (!opponentCellInfo) {
         opponentCellInfo = getRandomAvailableCell(tempPlayer1Board, tempPlayer1AvailableFireOptions);
-        if (opponentCellInfo.hasShip) {
-          buildSmartCPUFireOptions(tempPlayer1Board[opponentCellInfo.id], tempPlayer1Board, columns, tempPlayer1AvailableFireOptions);
-          dispatch(setCPUFirstFireSuccessCellID(opponentCellInfo.id));
+        dispatch(setCPUBestFireOptions([]));
+        dispatch(setCPUPreferredFireDirection(null));
+        dispatch(setCPUFirstFireSuccessCellID(null));
+        if (opponentCellInfo?.hasShip) {
+          // If a ship is hit, build smarter options for next shot
+          buildSmartCPUFireOptions(opponentCellInfo, tempPlayer1Board, columns);
         }
-        console.log('opponentCellInfo 304 ---> ', opponentCellInfo);
       }
+      console.log('opponentCellInfo despues de 309', opponentCellInfo);
+
+      console.log('opponentCellInfo antes de 324', opponentCellInfo);
+      // If random selection failed, give a next try
+      if (!opponentCellInfo) {
+        opponentCellInfo = getRandomAvailableCell(tempPlayer1Board, tempPlayer1AvailableFireOptions);
+        dispatch(setCPUBestFireOptions([]));
+        dispatch(setCPUPreferredFireDirection(null));
+        dispatch(setCPUFirstFireSuccessCellID(null));
+        if (opponentCellInfo?.hasShip) {
+          // If a ship is hit, build smarter options for next shot
+          buildSmartCPUFireOptions(opponentCellInfo, tempPlayer1Board, columns);
+        }
+      }
+      console.log('opponentCellInfo despues de 324', opponentCellInfo);
 
       // Remove cell from available options array
       const opponentCellID = opponentCellInfo.id;
@@ -324,6 +333,7 @@ export default function Game() {
       // Change player board indicating than the cell was fired
       tempPlayer1Board.find((data) => data.id === opponentCellID).wasFired = true;
 
+      // Perform modifications related the a successful fire
       if (opponentCellInfo.hasShip) {
         const shipHit = tempPlayer1Ships.find((data) => data.position.includes(opponentCellID));
         shipHit.hitsReceived += 1;
@@ -332,15 +342,16 @@ export default function Game() {
         if (shipHit.hitsReceived === shipHit.size) {
           shipHit.isSunk = true;
           const shipSunkPosition = shipHit.position;
-
           player1ShipsSunk += 1;
           dispatch(setPlayer1ShipsSunk(player1ShipsSunk));
-
           shipSunkPosition.map((position) => { tempPlayer1Board[position].hasShipSunk = true; });
 
-          // Inform user than a ship was sunk
+          // Inform than a ship was sunk - only if the configuration is done -
           if (shipSunkFeedback) {
             console.log('Barco hundido');
+            dispatch(setCPUBestFireOptions([]));
+            dispatch(setCPUPreferredFireDirection(null));
+            dispatch(setCPUFirstFireSuccessCellID(null));
           }
 
           // Check if the last ships was sunk
@@ -349,7 +360,7 @@ export default function Game() {
           }
         }
 
-        // Store the id of the first cell hit if CPUFirstFireSuccessCellID is null
+        // Store the id of the first cell hit after a if CPUFirstFireSuccessCellID is null
         if (!CPUFirstFireSuccessCellID) {
           dispatch(setCPUFirstFireSuccessCellID(opponentCellID));
         }
@@ -358,6 +369,9 @@ export default function Game() {
       // Dispatch CPU fire modifications
       if (JSON.stringify(player1Ships) !== JSON.stringify(tempPlayer1Ships)) {
         dispatch(setPlayer1Ships(tempPlayer1Ships));
+      }
+      if (JSON.stringify(CPUBestFireOptions) !== JSON.stringify(tempCPUBestFireOptions)) {
+        dispatch(setCPUBestFireOptions(tempCPUBestFireOptions));
       }
       dispatch(setPlayer1AvailableFireOptions(tempPlayer1AvailableFireOptions));
       dispatch(setPlayer1Board(tempPlayer1Board));
@@ -417,15 +431,6 @@ export default function Game() {
           </div>
         </div>
       </div>
-      <Link to="/game-result">
-        <button type="button">Go to results</button>
-      </Link>
-      <Link to="/">
-        <button type="button">New game</button>
-      </Link>
-      <Link to="/place-ships">
-        <button type="button">Go to place ships</button>
-      </Link>
     </div>
   );
 }

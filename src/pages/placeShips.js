@@ -66,78 +66,63 @@ export default function PlaceShips() {
   const player2Name = useSelector(getPlayer2Name);
   const player2User = useSelector(getPlayer2User);
 
-  return (
-    <>
-      { currentUser === 1
-        ? (
-          <>
-            <h1>
-              {player1Name}
-              {' '}
-              place your boats
-            </h1>
-            {player2User === 'User' && (
-            <h2>
-              {player2Name}
-              {' '}
-              please dont look
-            </h2>
-            )}
-            <div className="board" style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}>
-              {player1Board.map((cell, index) => {
-                const key = `PLAYER_1_BOARD_CELL_${index}`;
-                return (
-                  <div className="board-cell" key={key}>
-                    <div>{cell.hasShip ? 'X' : ''}</div>
-                  </div>
-                );
-              })}
-            </div>
-            { player2User === 'CPU'
-              ? (
-                <button type="button" onClick={() => handleStartGame()}>Go to game</button>
-              ) : (
-                <button type="button" onClick={() => setCurrentUser(2)}>Place Player 2 boats</button>
-              )}
-          </>
-        ) : (
-          <>
-            <h1>
-              {player2Name}
-              {' '}
-              place your boats
-            </h1>
-            <h2>
-              {player2Name}
-              {' '}
-              please dont look
-            </h2>
-            <div className="board" style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}>
-              {player2Board.map((cell, index) => {
-                const key = `PLAYER_2_BOARD_CELL_${index}`;
-                return (
-                  <div className="board-cell" key={key}>
-                    <div>{cell.id}</div>
-                  </div>
-                );
-              })}
-            </div>
-            <Link to="/game">
-              <button type="button">Go to game</button>
-            </Link>
-          </>
+  return currentUser === 1
+    ? (
+      <>
+        <h1>
+          {player1Name}
+          {' '}
+          place your boats
+        </h1>
+        {player2User === 'User' && (
+        <h2>
+          {player2Name}
+          {' '}
+          please dont look
+        </h2>
         )}
-      <div>
+        <div className="board" style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}>
+          {player1Board.map((cell, index) => {
+            const key = `PLAYER_1_BOARD_CELL_${index}`;
+            return (
+              <div className="board-cell" key={key}>
+                <div>{cell.hasShip ? 'X' : ''}</div>
+              </div>
+            );
+          })}
+        </div>
+        { player2User === 'CPU'
+          ? (
+            <button type="button" onClick={() => handleStartGame()}>Go to game</button>
+          ) : (
+            <button type="button" onClick={() => setCurrentUser(2)}>Place Player 2 boats</button>
+          )}
+      </>
+    ) : (
+      <>
+        <h1>
+          {player2Name}
+          {' '}
+          place your boats
+        </h1>
+        <h2>
+          {player2Name}
+          {' '}
+          please dont look
+        </h2>
+        <div className="board" style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}>
+          {player2Board.map((cell, index) => {
+            const key = `PLAYER_2_BOARD_CELL_${index}`;
+            return (
+              <div className="board-cell" key={key}>
+                <div>{cell.id}</div>
+              </div>
+            );
+          })}
+        </div>
         <Link to="/game">
           <button type="button">Go to game</button>
         </Link>
-        <Link to="/game-result">
-          <button type="button">Go to result</button>
-        </Link>
-        <Link to="/create-game">
-          <button type="button">Go to new game</button>
-        </Link>
-      </div>
-    </>
-  );
+      </>
+    );
 }

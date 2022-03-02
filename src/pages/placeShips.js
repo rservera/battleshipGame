@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import {
   getColumns, getPlayer1Name, getPlayer2Name, getPlayer2User,
@@ -66,6 +66,8 @@ export default function PlaceShips() {
   const player2Name = useSelector(getPlayer2Name);
   const player2User = useSelector(getPlayer2User);
 
+  const goToGameButton = <button type="button" onClick={() => handleStartGame()}>Go to game</button>;
+
   return currentUser === 1
     ? (
       <>
@@ -92,11 +94,8 @@ export default function PlaceShips() {
           })}
         </div>
         { player2User === 'CPU'
-          ? (
-            <button type="button" onClick={() => handleStartGame()}>Go to game</button>
-          ) : (
-            <button type="button" onClick={() => setCurrentUser(2)}>Place Player 2 boats</button>
-          )}
+          ? goToGameButton
+          : <button type="button" onClick={() => setCurrentUser(2)}>Place Player 2 boats</button>}
       </>
     ) : (
       <>
@@ -120,9 +119,7 @@ export default function PlaceShips() {
             );
           })}
         </div>
-        <Link to="/game">
-          <button type="button">Go to game</button>
-        </Link>
+        {goToGameButton}
       </>
     );
 }

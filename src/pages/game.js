@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import {
   setPlayerTurn, getPlayerTurn,
@@ -23,6 +24,7 @@ import {
 
 export default function Game() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const player1Name = useSelector(getPlayer1Name);
   const player2Name = useSelector(getPlayer2Name);
@@ -370,6 +372,10 @@ export default function Game() {
     }
   }
 
+  function doResign() {
+    navigate('/');
+  }
+
   return (
     <div>
       <h1>Game</h1>
@@ -400,7 +406,7 @@ export default function Game() {
             {' '}
             turn
           </div>
-          <button type="button">Resign</button>
+          <button type="button" onClick={() => doResign()}>Resign</button>
         </div>
         <div className="player-2-board-wrapper">
           <h2>{player2Name}</h2>

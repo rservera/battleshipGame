@@ -19,13 +19,18 @@ export default function PlaceShips() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
+  const player1Name = useSelector(getPlayer1Name);
   const player1Board = useSelector(getPlayer1Board);
   const player1Ships = useSelector(getPlayer1Ships);
   const player1ShipsPositions = useSelector(getPlayer1ShipsPositions);
 
+  const player2Name = useSelector(getPlayer2Name);
+  const player2User = useSelector(getPlayer2User);
   const player2Board = useSelector(getPlayer2Board);
   const player2Ships = useSelector(getPlayer2Ships);
   const player2ShipsPositions = useSelector(getPlayer2ShipsPositions);
+
+  const columns = useSelector(getColumns);
 
   // Redirect user to Create Game page if this page is reloaded
   useEffect(() => {
@@ -33,6 +38,25 @@ export default function PlaceShips() {
       navigate('/create-game');
     }
   });
+
+  function getUsersHeader(activeUser, player2UserMode) {
+    return (
+      <div className="place-ships-user-header">
+        <h1>
+          {activeUser === 1 ? player1Name : player2Name }
+          {' '}
+          place your boats
+        </h1>
+        { player2UserMode === 'User' && (
+        <h2>
+          {activeUser === 1 ? player2Name : player1Name }
+          {' '}
+          please dont look
+        </h2>
+        )}
+      </div>
+    );
+  }
 
   function handleStartGame() {
     // Map players ships and dispatch ship positions to state
@@ -61,65 +85,37 @@ export default function PlaceShips() {
     navigate('/game');
   }
 
-  const columns = useSelector(getColumns);
-  const player1Name = useSelector(getPlayer1Name);
-  const player2Name = useSelector(getPlayer2Name);
-  const player2User = useSelector(getPlayer2User);
-
   const goToGameButton = <button type="button" onClick={() => handleStartGame()}>Go to game</button>;
 
-  return currentUser === 1
-    ? (
-      <>
-        <h1>
-          {player1Name}
-          {' '}
-          place your boats
-        </h1>
-        {player2User === 'User' && (
-        <h2>
-          {player2Name}
-          {' '}
-          please dont look
-        </h2>
-        )}
+  return (
+    <div className="place-ships-wrapper">
+      { getUsersHeader(currentUser, player2User) }
+      <div className="place-ships-board-wrapper">
         <div className="board" style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}>
-          {player1Board.map((cell, index) => {
-            const key = `PLAYER_1_BOARD_CELL_${index}`;
-            return (
-              <div className="board-cell" key={key}>
-                <div>{cell.hasShip ? 'X' : ''}</div>
-              </div>
-            );
-          })}
+          {(currentUser === 1)
+            ? player1Board.map((cell, index) => {
+              const key = `PLAYER_1_BOARD_CELL_${index}`;
+              return (
+                <div className="board-cell" key={key}>
+                  <div>{cell.hasShip ? 'X' : ''}</div>
+                </div>
+              );
+            })
+            : player2Board.map((cell, index) => {
+              const key = `PLAYER_2_BOARD_CELL_${index}`;
+              return (
+                <div className="board-cell" key={key}>
+                  <div>{cell.id}</div>
+                </div>
+              );
+            })}
         </div>
-        { player2User === 'CPU'
-          ? goToGameButton
-          : <button type="button" onClick={() => setCurrentUser(2)}>Place Player 2 boats</button>}
-      </>
-    ) : (
-      <>
-        <h1>
-          {player2Name}
-          {' '}
-          place your boats
-        </h1>
-        <h2>
-          {player2Name}
-          {' '}
-          please dont look
-        </h2>
-        <div className="board" style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}>
-          {player2Board.map((cell, index) => {
-            const key = `PLAYER_2_BOARD_CELL_${index}`;
-            return (
-              <div className="board-cell" key={key}>
-                <div>{cell.id}</div>
-              </div>
-            );
-          })}
-        </div>
-        {goToGameButton}
-      </>
-    );
+      </div>
+      <div className="ship-selection-wrapper">
+        { (currentUser === 1 && player2User === 'User')
+          ? <button type="button" onClick={() => setCurrentUser(2)}>Place Player 2 boats</button>
+          : goToGameButton }
+      </div>
+    </div>
+  );
 }

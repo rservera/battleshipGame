@@ -2,6 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
   shipsPlacementBoard: [],
+  currentShipName: null,
   currentShipSize: null,
   orientation: 'horizontal',
   currentPreSelection: [],
@@ -13,6 +14,9 @@ const placeShips = createSlice({
   reducers: {
     setShipsPlacementBoard: (state, action) => {
       state.shipsPlacementBoard = action.payload;
+    },
+    setCurrentShipName: (state, action) => {
+      state.currentShipName = action.payload;
     },
     setCurrentShipSize: (state, action) => {
       state.currentShipSize = action.payload;
@@ -28,12 +32,14 @@ const placeShips = createSlice({
 
 export const {
   setShipsPlacementBoard,
+  setCurrentShipName,
   setCurrentShipSize,
   setOrientation,
   setCurrentPreSelection,
 } = placeShips.actions;
 
 export const getShipsPlacementBoard = (state) => state.placeShips.shipsPlacementBoard;
+export const getCurrentShipName = (state) => state.placeShips.currentShipName;
 export const getCurrentShipSize = (state) => state.placeShips.currentShipSize;
 export const getOrientation = (state) => state.placeShips.orientation;
 export const getCurrentPreSelection = (state) => state.placeShips.currentPreSelection;

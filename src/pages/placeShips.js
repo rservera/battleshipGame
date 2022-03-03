@@ -4,10 +4,12 @@ import { useSelector, useDispatch } from 'react-redux';
 import {
   getPlayer1Name, getPlayer2Name, getPlayer2User,
   getColumns, getRows, getShips,
+  setShips,
 } from 'store/gameConfiguration/gameConfigurationSlice';
 import {
   getPlayer1Board, getPlayer1Ships, getPlayer1ShipsPositions,
   setPlayer1ShipsPositions, setPlayer1Board,
+  setPlayer1Ships,
 } from 'store/boardConfiguration/player1BoardSlice';
 import {
   getPlayer2Board, getPlayer2Ships, getPlayer2ShipsPositions,
@@ -19,6 +21,8 @@ import {
   getShipsPlacementBoard,
   setShipsPlacementBoard,
   setCurrentPreSelection,
+  setCurrentShipName, getCurrentShipName,
+  getCurrentPreSelection,
 } from 'store/placeShips/placeShipsSlice';
 
 export default function PlaceShips() {
@@ -43,6 +47,8 @@ export default function PlaceShips() {
   const ships = useSelector(getShips);
   const orientation = useSelector(getOrientation);
   const currentShipSize = useSelector(getCurrentShipSize);
+  const currentShipName = useSelector(getCurrentShipName);
+  const currentPreSelection = useSelector(getCurrentPreSelection);
   const shipsPlacementBoard = useSelector(getShipsPlacementBoard);
 
   const tempShipsPlacementBoard = JSON.parse(JSON.stringify(shipsPlacementBoard));
@@ -80,8 +86,9 @@ export default function PlaceShips() {
     );
   }
 
-  function selectShipToBePlaced(size) {
+  function selectShipToBePlaced(name, size) {
     if (currentShipSize !== size) { dispatch(setCurrentShipSize(size)); }
+    if (currentShipName !== name) { dispatch(setCurrentShipName(name)); }
   }
 
   function buildShip(name, size, shipKey) {
@@ -91,7 +98,7 @@ export default function PlaceShips() {
         <div className="ship-name">
           {name}
         </div>
-        <div className={`ship orientation-${orientation}`} onClick={() => selectShipToBePlaced(size)}>
+        <div className={`ship orientation-${orientation}`} onClick={() => selectShipToBePlaced(name, size)}>
           {sizeArray.map((cell, index) => {
             const key = `SHIP_CELL_${index}`;
             return <div key={key} />;
@@ -216,12 +223,57 @@ export default function PlaceShips() {
   }
 
   function setShipPosition() {
+    // Dispatch shipsPlacementBoard modifications
     const boardToDispatch = [];
     tempShipsPlacementBoard.map((cellToModify) => {
       if (cellToModify.isPreSelected) { cellToModify.hasShip = true; }
       boardToDispatch.push(cellToModify);
     });
     dispatch(setShipsPlacementBoard(boardToDispatch));
+    // Dispatch player ships modification
+    const shipToAdd = {};
+    shipToAdd.name = currentShipName;
+    shipToAdd.position = currentPreSelection;
+    shipToAdd.size = currentShipSize;
+    shipToAdd.hitsReceived = 0;
+    shipToAdd.isSunk = false;
+    if (currentUser === 1) {
+      const tempPlayer1Ships = JSON.parse(JSON.stringify(player1Ships));
+      tempPlayer1Ships.push(shipToAdd);
+      dispatch(setPlayer1Ships(tempPlayer1Ships));
+    } else {
+      const tempPlayer2Ships = JSON.parse(JSON.stringify(player2Ships));
+      tempPlayer2Ships.push(shipToAdd);
+      dispatch(setPlayer2Ships(tempPlayer2Ships));
+    }
+    // Remove ship from ships to be placed
+    const tempShips = JSON.parse(JSON.stringify(ships));
+    const shipsToDispatch = tempShips.filter((ship) => ship.name !== currentShipName);
+    dispatch(setShips(shipsToDispatch));
+    dispatch(setCurrentShipSize(null));
+    dispatch(setCurrentShipName(null));
+    // Add ship position to all ships positions
+    if (currentUser === 1) {
+      const tempPlayer1ShipsPositions = JSON.parse(JSON.stringify(player1ShipsPositions));
+      const player1ShipsPositionToDispatch = tempPlayer1ShipsPositions.concat(currentPreSelection);
+      dispatch(setPlayer1ShipsPositions(player1ShipsPositionToDispatch));
+    } else {
+      const tempPlayer2ShipsPositions = JSON.parse(JSON.stringify(player2ShipsPositions));
+      const player2ShipsPositionToDispatch = tempPlayer2ShipsPositions.concat(currentPreSelection);
+      dispatch(setPlayer2ShipsPositions(player2ShipsPositionToDispatch));
+    }
+    // Modify player board when all ships had been placed
+    if (ships.length === 1) {
+      if (currentUser === 1) {
+        const tempPlayer1Board = JSON.parse(JSON.stringify(player1Board));
+        player1ShipsPositions.map((cellID) => { tempPlayer1Board[cellID].hasShip = true; });
+        dispatch(setPlayer1Board(tempPlayer1Board));
+      } else {
+        const tempPlayer2Board = JSON.parse(JSON.stringify(player2Board));
+        player2ShipsPositions.map((cellID) => { tempPlayer2Board[cellID].hasShip = true; });
+        dispatch(setPlayer2Board(tempPlayer2Board));
+      }
+    }
   }
 
   function handleStartGame() {
@@ -281,21 +333,25 @@ export default function PlaceShips() {
             return buildShip(ship.name, ship.size, shipKey);
           })}
         </div>
-        <div>
-          Current ship size:
-          {currentShipSize}
-        </div>
-        <div>
-          Click rotate button or press space bar to rotate ships
-        </div>
-        <div>
-          <button
-            type="button"
-            onClick={() => dispatch(setOrientation(orientation === 'horizontal' ? 'vertical' : 'horizontal'))}
-          >
-            Rotate
-          </button>
-        </div>
+        {ships.length > 0 && (
+        <>
+          <div>
+            Current ship size:
+            {currentShipSize}
+          </div>
+          <div>
+            Click rotate button or press space bar to rotate ships
+          </div>
+          <div>
+            <button
+              type="button"
+              onClick={() => dispatch(setOrientation(orientation === 'horizontal' ? 'vertical' : 'horizontal'))}
+            >
+              Rotate
+            </button>
+          </div>
+        </>
+        )}
         { (currentUser === 1 && player2User === 'User')
           ? <button type="button" onClick={() => setCurrentUser(2)}>Place Player 2 boats</button>
           : goToGameButton }

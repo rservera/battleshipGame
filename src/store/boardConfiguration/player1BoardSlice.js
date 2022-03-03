@@ -2,7 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
   board: [],
-  ships: [
+  /* ships: [
     {
       name: 'Carrier',
       position: [16, 17, 18, 19],
@@ -38,7 +38,8 @@ const initialState = {
       hitsReceived: 0,
       isSunk: false,
     },
-  ],
+  ], */
+  ships: [],
   availableFireOptions: [],
   shipsPositions: [],
   shipsSunk: 0,

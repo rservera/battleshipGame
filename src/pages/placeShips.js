@@ -111,7 +111,7 @@ export default function PlaceShips() {
     // Loop through the row getting consecutive cells that contains the given cell
     let option = [];
     const horizontalPlacementOptions = [];
-    for (let i = 0; i < shipSize; i++) {
+    for (let i = shipSize; i > 0; i--) {
       for (let startingPoint = minNumber + i; startingPoint <= (pivotNumber + i); startingPoint++) {
         if ((startingPoint - 1) <= columnsAmount) {
           option.push(boardRow[startingPoint - 1]);
@@ -155,8 +155,10 @@ export default function PlaceShips() {
   }
 
   function findShipPosition(cell, board, shipSize, columnsAmount, rowsAmount) {
-    getHorizontalPlacementOption(shipSize, cell.column, cell.row, board, columnsAmount);
-    getVerticalPlacementOption(shipSize, cell.column, cell.row, board, rowsAmount);
+    const horizontalPlacementOptions = getHorizontalPlacementOption(shipSize, cell.column, cell.row, board, columnsAmount);
+    const verticalPlacementOptions = getVerticalPlacementOption(shipSize, cell.column, cell.row, board, rowsAmount);
+    console.log('horizontalPlacementOptions', horizontalPlacementOptions);
+    console.log('verticalPlacementOptions', verticalPlacementOptions);
   }
 
   function handleStartGame() {

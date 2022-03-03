@@ -166,16 +166,19 @@ export default function PlaceShips() {
     const currentColumn = cell.column;
     const horizontalPlacementOptions = getHorizontalPlacementOption(shipSize, currentColumn, currentRow, board, columnsAmount);
     const verticalPlacementOptions = getVerticalPlacementOption(shipSize, currentColumn, currentRow, board, rowsAmount);
+    // Remove stored isPreSelected info
     tempShipsPlacementBoard.map((tempShipsPlacementBoardCell) => { tempShipsPlacementBoardCell.isPreSelected = false; });
     dispatch(setShipsPlacementBoard(tempShipsPlacementBoard));
+    // Only get options related to the current direction
     if (direction === 'horizontal') {
       // Get the board row
       const boardRow = [];
       board.map((boardCell) => (
         boardCell.row === cell.row ? boardRow.push(boardCell) : null
       ));
-      // Get cell in board row that has the columns id that are stored in horizontalPlacementOptions;
+      // Get cell in board row that has the columns id that are stored in horizontalPlacementOptions
       const preferredOption = horizontalPlacementOptions[0];
+      // Build and dispatch the ShipsPlacementBoard with isPreSelected cells
       const shipsPlacementBoardToDispatch = [];
       tempShipsPlacementBoard.map((tempShipsPlacementBoardCell) => {
         const cellToModify = JSON.parse(JSON.stringify(tempShipsPlacementBoardCell));
@@ -196,6 +199,7 @@ export default function PlaceShips() {
       ));
       // Get cell in board column that has the columns id that are stored in verticalPlacementOptions;
       const preferredOption = verticalPlacementOptions[0];
+      // Build and dispatch the ShipsPlacementBoard with isPreSelected cells
       const shipsPlacementBoardToDispatch = [];
       tempShipsPlacementBoard.map((tempShipsPlacementBoardCell) => {
         const cellToModify = JSON.parse(JSON.stringify(tempShipsPlacementBoardCell));

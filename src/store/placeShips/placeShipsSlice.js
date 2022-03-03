@@ -27,9 +27,6 @@ const placeShips = createSlice({
     setCurrentPreSelection: (state, action) => {
       state.currentPreSelection = action.payload;
     },
-    setResetShipsPlacementBoard: (state) => {
-      state.shipsPlacementBoard = initialState.shipsPlacementBoard;
-    },
   },
 });
 
@@ -39,7 +36,6 @@ export const {
   setCurrentShipSize,
   setOrientation,
   setCurrentPreSelection,
-  setResetShipsPlacementBoard,
 } = placeShips.actions;
 
 export const getShipsPlacementBoard = (state) => state.placeShips.shipsPlacementBoard;

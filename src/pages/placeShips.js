@@ -25,7 +25,6 @@ import {
   setCurrentPreSelection,
   setCurrentShipName, getCurrentShipName,
   getCurrentPreSelection,
-  // setResetShipsPlacementBoard,
 } from 'store/placeShips/placeShipsSlice';
 
 export default function PlaceShips() {
@@ -159,7 +158,7 @@ export default function PlaceShips() {
         // Check if the cell exists and doesn't have a ship
         const preSelectedCell = board[(column + rowsAmount * i) - 1];
         if (i < rowsAmount && preSelectedCell?.hasShip === false) {
-          option.push(i);
+          option.push(preSelectedCell.id);
         }
       }
       // Check that the option array has the same size than the ship
@@ -180,6 +179,7 @@ export default function PlaceShips() {
     tempShipsPlacementBoard.map((tempShipsPlacementBoardCell) => { tempShipsPlacementBoardCell.isPreSelected = false; });
     dispatch(setShipsPlacementBoard(tempShipsPlacementBoard));
     // Only get options related to the current direction
+    const preferredOptionToDispatch = [];
     if (direction === 'horizontal') {
       // Get the board row
       const boardRow = [];
@@ -198,9 +198,7 @@ export default function PlaceShips() {
         shipsPlacementBoardToDispatch.push(cellToModify);
       });
       dispatch(setShipsPlacementBoard(shipsPlacementBoardToDispatch));
-      const preferredOptionToDispatch = [];
       preferredOption?.map((cellToModifyColumn) => preferredOptionToDispatch.push(columnsAmount * (currentRow - 1) + cellToModifyColumn));
-      dispatch(setCurrentPreSelection(preferredOptionToDispatch));
     } else {
       // Get the board column
       const boardColumn = [];
@@ -213,23 +211,25 @@ export default function PlaceShips() {
       const shipsPlacementBoardToDispatch = [];
       tempShipsPlacementBoard.map((tempShipsPlacementBoardCell) => {
         const cellToModify = JSON.parse(JSON.stringify(tempShipsPlacementBoardCell));
-        if (cellToModify.column === currentColumn && preferredOption?.includes(cellToModify.row - 1)) {
+        if (cellToModify.column === currentColumn && preferredOption?.includes(cellToModify.id)) {
           cellToModify.isPreSelected = true;
         }
         shipsPlacementBoardToDispatch.push(cellToModify);
       });
       dispatch(setShipsPlacementBoard(shipsPlacementBoardToDispatch));
-      const preferredOptionToDispatch = [];
-      preferredOption?.map((cellToModifyRow) => preferredOptionToDispatch.push(rowsAmount * (currentColumn - 1) + cellToModifyRow));
-      dispatch(setCurrentPreSelection(preferredOptionToDispatch));
+      preferredOption?.map((cellToModifyID) => { preferredOptionToDispatch.push(cellToModifyID); });
     }
+    dispatch(setCurrentPreSelection(preferredOptionToDispatch));
   }
 
   function setShipPosition() {
     // Dispatch shipsPlacementBoard modifications
     const boardToDispatch = [];
     tempShipsPlacementBoard.map((cellToModify) => {
-      if (cellToModify.isPreSelected) { cellToModify.hasShip = true; }
+      if (cellToModify.isPreSelected) {
+        cellToModify.hasShip = true;
+        cellToModify.isPreSelected = false;
+      }
       boardToDispatch.push(cellToModify);
     });
     dispatch(setShipsPlacementBoard(boardToDispatch));

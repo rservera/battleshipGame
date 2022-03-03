@@ -132,27 +132,29 @@ export default function PlaceShips() {
   }
 
   function getVerticalPlacementOption(shipSize, column, row, board, rowsAmount) {
-    // Get the board row
+    // Get the board column
     const boardColumn = [];
     board.map((cell) => (
       cell.column === column ? boardColumn.push(cell) : null
     ));
-    // Get n cells to left (ship size)
-    const pivotNumber = row;
+    // Get n cells to bottom (ship size)
+    const pivotNumber = row - 1;
     const tempMinNumber = pivotNumber - shipSize + 1;
     const minNumber = tempMinNumber < 0 ? 0 : tempMinNumber;
-    // Loop through the row getting consecutive cells that contains the given cell
+    // Loop through the column getting consecutive cells that contains the given cell
     let option = [];
     const verticalPlacementOptions = [];
-    for (let i = 0; i < shipSize; i++) {
-      for (let startingPoint = minNumber + i; startingPoint <= (pivotNumber + i); startingPoint++) {
-        if ((startingPoint - 1) <= rowsAmount) {
-          option.push(boardColumn[startingPoint - 1]);
+    for (let startingPoint = pivotNumber; startingPoint >= minNumber; startingPoint--) {
+      for (let i = startingPoint + shipSize - 1; i >= startingPoint; i--) {
+        // Check if the cell exists and doesn't have a ship
+        const preSelectedCell = board[(column + rowsAmount * i) - 1];
+        if (i < rowsAmount && preSelectedCell?.hasShip === false) {
+          option.push(i);
         }
       }
-      const cleanedOption = option.filter((x) => x !== undefined); // Remove undefined elements
-      if (cleanedOption.length === shipSize) {
-        verticalPlacementOptions.push(cleanedOption);
+      // Check that the option array has the same size than the ship
+      if (option.length === shipSize) {
+        verticalPlacementOptions.push(option);
       }
       option = [];
     }
@@ -163,7 +165,6 @@ export default function PlaceShips() {
     const currentRow = cell.row;
     const currentColumn = cell.column;
     const horizontalPlacementOptions = getHorizontalPlacementOption(shipSize, currentColumn, currentRow, board, columnsAmount);
-    console.log('horizontalPlacementOptions', horizontalPlacementOptions);
     const verticalPlacementOptions = getVerticalPlacementOption(shipSize, currentColumn, currentRow, board, rowsAmount);
     tempShipsPlacementBoard.map((tempShipsPlacementBoardCell) => { tempShipsPlacementBoardCell.isPreSelected = false; });
     dispatch(setShipsPlacementBoard(tempShipsPlacementBoard));
@@ -188,7 +189,25 @@ export default function PlaceShips() {
       preferredOption?.map((cellToModifyColumn) => preferredOptionToDispatch.push(columnsAmount * (currentRow - 1) + cellToModifyColumn));
       dispatch(setCurrentPreSelection(preferredOptionToDispatch));
     } else {
-      console.log('verticalPlacementOptions', verticalPlacementOptions);
+      // Get the board column
+      const boardColumn = [];
+      board.map((boardCell) => (
+        boardCell.column === cell.column ? boardColumn.push(boardCell) : null
+      ));
+      // Get cell in board column that has the columns id that are stored in verticalPlacementOptions;
+      const preferredOption = verticalPlacementOptions[0];
+      const shipsPlacementBoardToDispatch = [];
+      tempShipsPlacementBoard.map((tempShipsPlacementBoardCell) => {
+        const cellToModify = JSON.parse(JSON.stringify(tempShipsPlacementBoardCell));
+        if (cellToModify.column === currentColumn && preferredOption?.includes(cellToModify.row - 1)) {
+          cellToModify.isPreSelected = true;
+        }
+        shipsPlacementBoardToDispatch.push(cellToModify);
+      });
+      dispatch(setShipsPlacementBoard(shipsPlacementBoardToDispatch));
+      const preferredOptionToDispatch = [];
+      preferredOption?.map((cellToModifyRow) => preferredOptionToDispatch.push(rowsAmount * (currentColumn - 1) + cellToModifyRow));
+      dispatch(setCurrentPreSelection(preferredOptionToDispatch));
     }
   }
 

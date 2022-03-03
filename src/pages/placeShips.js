@@ -18,6 +18,7 @@ import {
   getCurrentShipSize, setCurrentShipSize,
   getShipsPlacementBoard,
   setShipsPlacementBoard,
+  setCurrentPreSelection,
 } from 'store/placeShips/placeShipsSlice';
 
 export default function PlaceShips() {
@@ -43,6 +44,8 @@ export default function PlaceShips() {
   const orientation = useSelector(getOrientation);
   const currentShipSize = useSelector(getCurrentShipSize);
   const shipsPlacementBoard = useSelector(getShipsPlacementBoard);
+
+  const tempShipsPlacementBoard = JSON.parse(JSON.stringify(shipsPlacementBoard));
 
   // Redirect user to Create Game page if this page is reloaded
   useEffect(() => {
@@ -113,10 +116,13 @@ export default function PlaceShips() {
     const horizontalPlacementOptions = [];
     for (let startingPoint = pivotNumber; startingPoint >= minNumber; startingPoint--) {
       for (let i = startingPoint + shipSize - 1; i >= startingPoint; i--) {
-        if (i < columnsAmount) {
+        // Check if the cell exists and doesn't have a ship
+        const preSelectedCell = board[(row - 1) * columnsAmount + i];
+        if (i < columnsAmount && preSelectedCell?.hasShip === false) {
           option.push(i);
         }
       }
+      // Check that the option array has the same size than the ship
       if (option.length === shipSize) {
         horizontalPlacementOptions.push(option);
       }
@@ -156,10 +162,9 @@ export default function PlaceShips() {
   function findShipPosition(cell, board, shipSize, columnsAmount, rowsAmount, direction) {
     const currentRow = cell.row;
     const currentColumn = cell.column;
-    console.log('currentRow', currentRow);
     const horizontalPlacementOptions = getHorizontalPlacementOption(shipSize, currentColumn, currentRow, board, columnsAmount);
+    console.log('horizontalPlacementOptions', horizontalPlacementOptions);
     const verticalPlacementOptions = getVerticalPlacementOption(shipSize, currentColumn, currentRow, board, rowsAmount);
-    const tempShipsPlacementBoard = JSON.parse(JSON.stringify(board));
     tempShipsPlacementBoard.map((tempShipsPlacementBoardCell) => { tempShipsPlacementBoardCell.isPreSelected = false; });
     dispatch(setShipsPlacementBoard(tempShipsPlacementBoard));
     if (direction === 'horizontal') {
@@ -170,22 +175,30 @@ export default function PlaceShips() {
       ));
       // Get cell in board row that has the columns id that are stored in horizontalPlacementOptions;
       const preferredOption = horizontalPlacementOptions[0];
-      console.log('preferredOption', preferredOption);
       const shipsPlacementBoardToDispatch = [];
       tempShipsPlacementBoard.map((tempShipsPlacementBoardCell) => {
         const cellToModify = JSON.parse(JSON.stringify(tempShipsPlacementBoardCell));
-        console.log('cellToModify', cellToModify);
-        if (cellToModify.row === currentRow && preferredOption.includes(cellToModify.column - 1)) {
-          console.log('cellToModify antes', cellToModify);
+        if (cellToModify.row === currentRow && preferredOption?.includes(cellToModify.column - 1)) {
           cellToModify.isPreSelected = true;
-          console.log('cellToModify despues', cellToModify);
         }
         shipsPlacementBoardToDispatch.push(cellToModify);
       });
       dispatch(setShipsPlacementBoard(shipsPlacementBoardToDispatch));
+      const preferredOptionToDispatch = [];
+      preferredOption?.map((cellToModifyColumn) => preferredOptionToDispatch.push(columnsAmount * (currentRow - 1) + cellToModifyColumn));
+      dispatch(setCurrentPreSelection(preferredOptionToDispatch));
     } else {
       console.log('verticalPlacementOptions', verticalPlacementOptions);
     }
+  }
+
+  function setShipPosition() {
+    const boardToDispatch = [];
+    tempShipsPlacementBoard.map((cellToModify) => {
+      if (cellToModify.isPreSelected) { cellToModify.hasShip = true; }
+      boardToDispatch.push(cellToModify);
+    });
+    dispatch(setShipsPlacementBoard(boardToDispatch));
   }
 
   function handleStartGame() {
@@ -229,8 +242,10 @@ export default function PlaceShips() {
                 className="board-cell"
                 key={key}
                 onMouseEnter={() => (currentShipSize ? findShipPosition(cell, shipsPlacementBoard, currentShipSize, columns, rows, orientation) : null)}
+                onClick={() => setShipPosition()}
               >
-                {cell.isPreSelected ? 'x' : ''}
+                {cell.isPreSelected ? '-' : ''}
+                {cell.hasShip ? 'x' : ''}
               </div>
             );
           })}

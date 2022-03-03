@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import {
   getPlayer1Name, getPlayer2Name, getPlayer2User,
-  getColumns, getShips,
+  getColumns, getRows, getShips,
 } from 'store/gameConfiguration/gameConfigurationSlice';
 import {
   getPlayer1Board, getPlayer1Ships, getPlayer1ShipsPositions,
@@ -16,6 +16,7 @@ import {
 import {
   getOrientation, setOrientation,
   getCurrentShipSize, setCurrentShipSize,
+  getShipsPlacementBoard,
 } from 'store/placeShips/placeShipsSlice';
 
 export default function PlaceShips() {
@@ -36,9 +37,12 @@ export default function PlaceShips() {
   const player2ShipsPositions = useSelector(getPlayer2ShipsPositions);
 
   const columns = useSelector(getColumns);
+  const rows = useSelector(getRows);
   const ships = useSelector(getShips);
   const orientation = useSelector(getOrientation);
   const currentShipSize = useSelector(getCurrentShipSize);
+  const shipsPlacementBoard = useSelector(getShipsPlacementBoard);
+  console.log(shipsPlacementBoard);
 
   // Redirect user to Create Game page if this page is reloaded
   useEffect(() => {
@@ -46,6 +50,13 @@ export default function PlaceShips() {
       navigate('/create-game');
     }
   });
+
+  // Rotate ships if spacebar is pressed
+  document.body.onkeyup = function handleRotateShip(e) {
+    if (e.keyCode === 32) {
+      dispatch(setOrientation(orientation === 'horizontal' ? 'vertical' : 'horizontal'));
+    }
+  };
 
   function getUsersHeader(activeUser, player2UserMode) {
     return (
@@ -87,11 +98,66 @@ export default function PlaceShips() {
     );
   }
 
-  document.body.onkeyup = function handleRotateShip(e) {
-    if (e.keyCode === 32) {
-      dispatch(setOrientation(orientation === 'horizontal' ? 'vertical' : 'horizontal'));
+  function getHorizontalPlacementOption(shipSize, column, row, board, columnsAmount) {
+    // Get the board row
+    const boardRow = [];
+    board.map((cell) => (
+      cell.row === row ? boardRow.push(cell) : null
+    ));
+    // Get n cells to left (ship size)
+    const pivotNumber = column;
+    const tempMinNumber = pivotNumber - shipSize + 1;
+    const minNumber = tempMinNumber < 0 ? 0 : tempMinNumber;
+    // Loop through the row getting consecutive cells that contains the given cell
+    let option = [];
+    const horizontalPlacementOptions = [];
+    for (let i = 0; i < shipSize; i++) {
+      for (let startingPoint = minNumber + i; startingPoint <= (pivotNumber + i); startingPoint++) {
+        if ((startingPoint - 1) <= columnsAmount) {
+          option.push(boardRow[startingPoint - 1]);
+        }
+      }
+      const cleanedOption = option.filter((x) => x !== undefined); // Remove undefined elements
+      if (cleanedOption.length === shipSize) {
+        horizontalPlacementOptions.push(cleanedOption);
+      }
+      option = [];
     }
-  };
+    return horizontalPlacementOptions;
+  }
+
+  function getVerticalPlacementOption(shipSize, column, row, board, rowsAmount) {
+    // Get the board row
+    const boardColumn = [];
+    board.map((cell) => (
+      cell.column === column ? boardColumn.push(cell) : null
+    ));
+    // Get n cells to left (ship size)
+    const pivotNumber = row;
+    const tempMinNumber = pivotNumber - shipSize + 1;
+    const minNumber = tempMinNumber < 0 ? 0 : tempMinNumber;
+    // Loop through the row getting consecutive cells that contains the given cell
+    let option = [];
+    const verticalPlacementOptions = [];
+    for (let i = 0; i < shipSize; i++) {
+      for (let startingPoint = minNumber + i; startingPoint <= (pivotNumber + i); startingPoint++) {
+        if ((startingPoint - 1) <= rowsAmount) {
+          option.push(boardColumn[startingPoint - 1]);
+        }
+      }
+      const cleanedOption = option.filter((x) => x !== undefined); // Remove undefined elements
+      if (cleanedOption.length === shipSize) {
+        verticalPlacementOptions.push(cleanedOption);
+      }
+      option = [];
+    }
+    return verticalPlacementOptions;
+  }
+
+  function findShipPosition(cell, board, shipSize, columnsAmount, rowsAmount) {
+    getHorizontalPlacementOption(shipSize, cell.column, cell.row, board, columnsAmount);
+    getVerticalPlacementOption(shipSize, cell.column, cell.row, board, rowsAmount);
+  }
 
   function handleStartGame() {
     // Map players ships and dispatch ship positions to state
@@ -127,23 +193,16 @@ export default function PlaceShips() {
       { getUsersHeader(currentUser, player2User) }
       <div className="place-ships-board-wrapper">
         <div className="board" style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}>
-          {(currentUser === 1)
-            ? player1Board.map((cell, index) => {
-              const key = `PLAYER_1_BOARD_CELL_${index}`;
-              return (
-                <div className="board-cell" key={key}>
-                  <div>{cell.hasShip ? 'X' : ''}</div>
-                </div>
-              );
-            })
-            : player2Board.map((cell, index) => {
-              const key = `PLAYER_2_BOARD_CELL_${index}`;
-              return (
-                <div className="board-cell" key={key}>
-                  <div>{cell.id}</div>
-                </div>
-              );
-            })}
+          {shipsPlacementBoard.map((cell, index) => {
+            const key = `SHIPS_PLACEMENT_BOARD_CELL_${index}`;
+            return (
+              <div
+                className="board-cell"
+                key={key}
+                onMouseEnter={() => (currentShipSize ? findShipPosition(cell, shipsPlacementBoard, currentShipSize, columns, rows) : null)}
+              />
+            );
+          })}
         </div>
       </div>
       <div className="ship-selection-controls-wrapper">

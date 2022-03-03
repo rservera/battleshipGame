@@ -18,6 +18,7 @@ import {
 export default function CreateGame() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
   const shipSunkFeedback = useSelector(getShipSunkFeedback);
   const columnsAmount = useSelector(getColumns);
   const rowsAmount = useSelector(getRows);

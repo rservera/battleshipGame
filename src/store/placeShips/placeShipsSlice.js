@@ -28,7 +28,7 @@ export const {
   setOrientation,
 } = placeShips.actions;
 
-export const getShipsPlacementBoard = (state) => state.placeShips.availableCells;
+export const getShipsPlacementBoard = (state) => state.placeShips.shipsPlacementBoard;
 export const getCurrentShipSize = (state) => state.placeShips.currentShipSize;
 export const getOrientation = (state) => state.placeShips.orientation;
 

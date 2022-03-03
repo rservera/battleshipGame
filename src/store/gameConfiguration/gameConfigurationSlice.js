@@ -56,6 +56,9 @@ const gameConfiguration = createSlice({
     setShips: (state, action) => {
       state.ships = action.payload;
     },
+    setResetShips: (state) => {
+      state.ships = initialState.ships;
+    },
   },
 });
 
@@ -67,6 +70,7 @@ export const {
   setPlayer2User,
   setShipSunkFeedback,
   setShips,
+  setResetShips,
 } = gameConfiguration.actions;
 
 export const getColumns = (state) => state.gameConfiguration.columns;

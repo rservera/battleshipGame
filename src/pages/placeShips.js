@@ -5,6 +5,7 @@ import {
   getPlayer1Name, getPlayer2Name, getPlayer2User,
   getColumns, getRows, getShips,
   setShips,
+  setResetShips,
 } from 'store/gameConfiguration/gameConfigurationSlice';
 import {
   getPlayer1Board, getPlayer1Ships, getPlayer1ShipsPositions,
@@ -14,6 +15,7 @@ import {
 import {
   getPlayer2Board, getPlayer2Ships, getPlayer2ShipsPositions,
   setPlayer2ShipsPositions, setPlayer2Board,
+  setPlayer2Ships,
 } from 'store/boardConfiguration/player2BoardSlice';
 import {
   getOrientation, setOrientation,
@@ -23,6 +25,7 @@ import {
   setCurrentPreSelection,
   setCurrentShipName, getCurrentShipName,
   getCurrentPreSelection,
+  // setResetShipsPlacementBoard,
 } from 'store/placeShips/placeShipsSlice';
 
 export default function PlaceShips() {
@@ -276,6 +279,13 @@ export default function PlaceShips() {
     }
   }
 
+  function handleChangeTurn() {
+    setCurrentUser(2);
+    dispatch(setResetShips());
+    tempShipsPlacementBoard.map((cell) => { cell.hasShip = false; });
+    dispatch(setShipsPlacementBoard(tempShipsPlacementBoard));
+  }
+
   function handleStartGame() {
     // Map players ships and dispatch ship positions to state
     const tempPlayer1ShipsPositions = JSON.parse(JSON.stringify(player1ShipsPositions));
@@ -353,7 +363,7 @@ export default function PlaceShips() {
         </>
         )}
         { (currentUser === 1 && player2User === 'User')
-          ? <button type="button" onClick={() => setCurrentUser(2)}>Place Player 2 boats</button>
+          ? <button type="button" onClick={() => handleChangeTurn()}>Place Player 2 boats</button>
           : goToGameButton }
       </div>
     </div>

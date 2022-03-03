@@ -2,43 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
   board: [],
-  ships: [
-    {
-      name: 'Carrier',
-      position: [0, 1, 2, 3],
-      size: 4,
-      hitsReceived: 0,
-      isSunk: false,
-    },
-    {
-      name: 'Cruiser #1',
-      position: [42, 43, 44],
-      size: 3,
-      hitsReceived: 0,
-      isSunk: false,
-    },
-    {
-      name: 'Cruiser #2',
-      position: [38, 48, 58],
-      size: 3,
-      hitsReceived: 0,
-      isSunk: false,
-    },
-    {
-      name: 'Cruiser #3',
-      position: [74, 84, 94],
-      size: 3,
-      hitsReceived: 0,
-      isSunk: false,
-    },
-    {
-      name: 'Submarine',
-      position: [40, 50],
-      size: 2,
-      hitsReceived: 0,
-      isSunk: false,
-    },
-  ],
+  ships: [],
   shipsPositions: [],
   shipsSunk: 0,
 };

@@ -52,6 +52,7 @@ export default function CreateGame() {
       placementCellInfo.hasShip = false;
       placementCellInfo.row = Math.floor((i / columns) + 1);
       placementCellInfo.column = Math.floor((i % columns) + 1);
+      placementCellInfo.isPreSelected = false;
       shipsPlacementBoard.push(placementCellInfo);
     }
 

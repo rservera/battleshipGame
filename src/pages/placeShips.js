@@ -42,7 +42,6 @@ export default function PlaceShips() {
   const orientation = useSelector(getOrientation);
   const currentShipSize = useSelector(getCurrentShipSize);
   const shipsPlacementBoard = useSelector(getShipsPlacementBoard);
-  console.log(shipsPlacementBoard);
 
   // Redirect user to Create Game page if this page is reloaded
   useEffect(() => {
@@ -105,21 +104,20 @@ export default function PlaceShips() {
       cell.row === row ? boardRow.push(cell) : null
     ));
     // Get n cells to left (ship size)
-    const pivotNumber = column;
+    const pivotNumber = column - 1;
     const tempMinNumber = pivotNumber - shipSize + 1;
     const minNumber = tempMinNumber < 0 ? 0 : tempMinNumber;
     // Loop through the row getting consecutive cells that contains the given cell
     let option = [];
     const horizontalPlacementOptions = [];
-    for (let i = shipSize; i > 0; i--) {
-      for (let startingPoint = minNumber + i; startingPoint <= (pivotNumber + i); startingPoint++) {
-        if ((startingPoint - 1) <= columnsAmount) {
-          option.push(boardRow[startingPoint - 1]);
+    for (let startingPoint = pivotNumber; startingPoint >= minNumber; startingPoint--) {
+      for (let i = startingPoint + shipSize - 1; i >= startingPoint; i--) {
+        if (i < columnsAmount) {
+          option.push(i);
         }
       }
-      const cleanedOption = option.filter((x) => x !== undefined); // Remove undefined elements
-      if (cleanedOption.length === shipSize) {
-        horizontalPlacementOptions.push(cleanedOption);
+      if (option.length === shipSize) {
+        horizontalPlacementOptions.push(option);
       }
       option = [];
     }

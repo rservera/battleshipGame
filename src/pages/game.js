@@ -394,7 +394,6 @@ export default function Game() {
                 onClick={(playerTurn === 'player2' && !cell.wasFired) ? () => doFire(cell.id, playerTurn, cell.hasShip) : null}
                 key={cell.id}
               >
-                {cell.id}
                 {cell.hasShip ? 'x' : ''}
               </div>
             ))}

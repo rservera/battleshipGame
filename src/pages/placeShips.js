@@ -160,6 +160,8 @@ export default function PlaceShips() {
     const horizontalPlacementOptions = getHorizontalPlacementOption(shipSize, currentColumn, currentRow, board, columnsAmount);
     const verticalPlacementOptions = getVerticalPlacementOption(shipSize, currentColumn, currentRow, board, rowsAmount);
     const tempShipsPlacementBoard = JSON.parse(JSON.stringify(board));
+    tempShipsPlacementBoard.map((tempShipsPlacementBoardCell) => { tempShipsPlacementBoardCell.isPreSelected = false; });
+    dispatch(setShipsPlacementBoard(tempShipsPlacementBoard));
     if (direction === 'horizontal') {
       // Get the board row
       const boardRow = [];

@@ -279,38 +279,153 @@ export default function PlaceShips() {
     }
   }
 
-  function handleChangeTurn() {
-    setCurrentUser(2);
+  function placeShipInArea(shipSize, shipName, firstColumn, lastColumn, firstRow, lastRow, currentPlayer2Board, currentPlayer2ShipsPositions, currentPlayer2Ships) {
+    const tempPlayer2Board = JSON.parse(JSON.stringify(currentPlayer2Board));
+    const tempPlayer2ShipsPositions = JSON.parse(JSON.stringify(currentPlayer2ShipsPositions));
+    const tempPlayer2Ships = JSON.parse(JSON.stringify(currentPlayer2Ships));
+
+    // Get random direction and position
+    const shipDirection = Math.random() > 0.5 ? 'horizontal' : 'vertical';
+    const randomNumberInRange = (min, max) => Math.floor(Math.random() * (max - min)) + min;
+    const randomCellColumn = randomNumberInRange(firstColumn, lastColumn);
+    const randomCellRow = randomNumberInRange(firstRow, lastRow);
+    const cellsInRandomRow = shipsPlacementBoard.filter((cell) => (cell.row === randomCellRow));
+    const randomCellInBoard = cellsInRandomRow.filter((cell) => (cell.column === randomCellColumn))[0];
+    const randomCellInBoardID = randomCellInBoard.id;
+    const getCellsInSpecificRow = (specificRow) => shipsPlacementBoard.filter((cell) => (cell.row === specificRow));
+    const getCellsInSpecificColumn = (specificColumn) => shipsPlacementBoard.filter((cell) => (cell.column === specificColumn));
+    const randomCellsToDispatch = JSON.parse(JSON.stringify(player2ShipsPositions));
+    randomCellsToDispatch.push(randomCellInBoardID);
+
+    // Get ship position cells IDs
+    if (shipDirection === 'horizontal') {
+      const cellsInRandomCellRow = getCellsInSpecificRow(randomCellRow);
+      const cellPositionInRandomCellRowArray = cellsInRandomCellRow.indexOf(randomCellInBoard);
+      if (randomCellColumn + shipSize - 1 > lastColumn) {
+        // To the left
+        for (let i = 1; i < shipSize; i++) {
+          const cellIDToAdd = cellsInRandomCellRow[cellPositionInRandomCellRowArray - i].id;
+          randomCellsToDispatch.push(cellIDToAdd);
+        }
+      } else {
+        // To the right
+        for (let i = 1; i < shipSize; i++) {
+          const cellIDToAdd = cellsInRandomCellRow[cellPositionInRandomCellRowArray + i].id;
+          randomCellsToDispatch.push(cellIDToAdd);
+        }
+      }
+    } else {
+      const cellsInRandomCellColumn = getCellsInSpecificColumn(randomCellColumn);
+      const cellPositionInRandomCellColumnArray = cellsInRandomCellColumn.indexOf(randomCellInBoard);
+      if (randomCellRow + shipSize - 1 > lastRow) {
+        // To top
+        for (let i = 1; i < shipSize; i++) {
+          const cellIDToAdd = cellsInRandomCellColumn[cellPositionInRandomCellColumnArray - i].id;
+          randomCellsToDispatch.push(cellIDToAdd);
+        }
+      } else {
+        // To bottom
+        for (let i = 1; i < shipSize; i++) {
+          const cellIDToAdd = cellsInRandomCellColumn[cellPositionInRandomCellColumnArray + i].id;
+          randomCellsToDispatch.push(cellIDToAdd);
+        }
+      }
+    }
+
+    // Dispatch ship position
+    tempPlayer2ShipsPositions.push(randomCellsToDispatch);
+    dispatch(setPlayer2ShipsPositions(tempPlayer2ShipsPositions));
+    randomCellsToDispatch.forEach((id) => {
+      tempPlayer2Board[id].hasShip = true;
+    });
+    dispatch(setPlayer2Board(tempPlayer2Board));
+    const shipToAdd = {};
+    shipToAdd.name = shipName;
+    shipToAdd.size = shipSize;
+    shipToAdd.hitsReceived = 0;
+    shipToAdd.isSunk = false;
+    shipToAdd.position = randomCellsToDispatch;
+    tempPlayer2Ships.push(shipToAdd);
+    dispatch(setPlayer2Ships(tempPlayer2Ships));
+  }
+
+  function placeCPUShips() {
+    // Not really random positions but won't be ease
+    // to user understand the logic behind the CPU
+    // ships positions just by playing
+    console.log('player2Board', player2Board);
+    console.log('player2ShipsPositions', player2ShipsPositions);
+    console.log('player2Ships', player2Ships);
+    placeShipInArea(4, 'Carrier', 1, 6, 1, 6, player2Board, player2ShipsPositions, player2Ships);
+
+    console.log('player2Board', player2Board);
+    console.log('player2ShipsPositions', player2ShipsPositions);
+    console.log('player2Ships', player2Ships);
+    placeShipInArea(3, 'Cruiser #1', 7, columns, 1, 4, player2Board, player2ShipsPositions, player2Ships);
+
+    console.log('player2Board', player2Board);
+    console.log('player2ShipsPositions', player2ShipsPositions);
+    console.log('player2Ships', player2Ships);
+    placeShipInArea(3, 'Cruiser #2', 1, 5, 7, rows, player2Board, player2ShipsPositions, player2Ships);
+
+    console.log('player2Board', player2Board);
+    console.log('player2ShipsPositions', player2ShipsPositions);
+    console.log('player2Ships', player2Ships);
+    placeShipInArea(3, 'Cruiser #3', 6, columns, 7, rows, player2Board, player2ShipsPositions, player2Ships);
+
+    console.log('player2Board', player2Board);
+    console.log('player2ShipsPositions', player2ShipsPositions);
+    console.log('player2Ships', player2Ships);
+    placeShipInArea(2, 'Submarine', 7, columns, 5, 6, player2Board, player2ShipsPositions, player2Ships);
+  }
+
+  function resetShipsPlacementBoard() {
     dispatch(setResetShips());
     tempShipsPlacementBoard.map((cell) => { cell.hasShip = false; });
     dispatch(setShipsPlacementBoard(tempShipsPlacementBoard));
   }
 
+  function handleChangeTurn() {
+    setCurrentUser(2);
+    resetShipsPlacementBoard();
+  }
+
   function handleStartGame() {
+    const playingAgainstCPU = player2User === 'CPU';
     // Map players ships and dispatch ship positions to state
     const tempPlayer1ShipsPositions = JSON.parse(JSON.stringify(player1ShipsPositions));
-    const tempPlayer2ShipsPositions = JSON.parse(JSON.stringify(player2ShipsPositions));
     player1Ships.map((ship) => (
       tempPlayer1ShipsPositions.push(...ship.position)
     ));
-    player2Ships.map((ship) => (
-      tempPlayer2ShipsPositions.push(...ship.position)
-    ));
     dispatch(setPlayer1ShipsPositions(tempPlayer1ShipsPositions));
-    dispatch(setPlayer2ShipsPositions(tempPlayer2ShipsPositions));
+    if (!playingAgainstCPU) {
+      const tempPlayer2ShipsPositions = JSON.parse(JSON.stringify(player2ShipsPositions));
+      player2Ships.map((ship) => (
+        tempPlayer2ShipsPositions.push(...ship.position)
+      ));
+      dispatch(setPlayer2ShipsPositions(tempPlayer2ShipsPositions));
+    }
     // Update players board cells indicating which cells has ships
     const tempPlayer1Board = JSON.parse(JSON.stringify(player1Board));
     tempPlayer1ShipsPositions.forEach((id) => {
       tempPlayer1Board[id].hasShip = true;
     });
     dispatch(setPlayer1Board(tempPlayer1Board));
-    const tempPlayer2Board = JSON.parse(JSON.stringify(player2Board));
-    tempPlayer2ShipsPositions.forEach((id) => {
-      tempPlayer2Board[id].hasShip = true;
-    });
-    dispatch(setPlayer2Board(tempPlayer2Board));
+    if (!playingAgainstCPU) {
+      const tempPlayer2Board = JSON.parse(JSON.stringify(player2Board));
+      tempPlayer2ShipsPositions.forEach((id) => {
+        tempPlayer2Board[id].hasShip = true;
+      });
+      dispatch(setPlayer2Board(tempPlayer2Board));
+    }
     // Redirect user to game
-    navigate('/game');
+    if (!playingAgainstCPU) {
+      handleChangeTurn();
+    } else {
+      resetShipsPlacementBoard();
+      placeCPUShips();
+    }
+    // navigate('/game');
   }
 
   const goToGameButton = <button type="button" onClick={() => handleStartGame()}>Go to game</button>;

@@ -15,7 +15,8 @@
     align-items: center;
 }
 
-.board-cell.was-fired.has-ship {
+.board-cell.was-fired.has-ship,
+.board-cell.is-pre-selected {
     background: orange;
 }
 
@@ -23,7 +24,8 @@
     background: lightblue;
 }
 
-.board-cell.is-sunk {
+.board-cell.is-sunk,
+.board-cell.has-ship-placed {
     background: red !important;
 }
 

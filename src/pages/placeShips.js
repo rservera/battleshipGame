@@ -44,6 +44,10 @@ export default function PlaceShips() {
   const player2Ships = useSelector(getPlayer2Ships);
   const player2ShipsPositions = useSelector(getPlayer2ShipsPositions);
 
+  const [CPUBoard, setCPUBoard] = useState(player2Board);
+  const [CPUShips, setCPUShips] = useState(player2Ships);
+  const [CPUShipsPositions, setCPUShipsPositions] = useState(player2ShipsPositions);
+
   const columns = useSelector(getColumns);
   const rows = useSelector(getRows);
   const ships = useSelector(getShips);
@@ -347,36 +351,22 @@ export default function PlaceShips() {
     shipToAdd.position = randomCellsToDispatch;
     tempPlayer2Ships.push(shipToAdd);
     dispatch(setPlayer2Ships(tempPlayer2Ships));
+    return (
+      setCPUBoard(tempPlayer2Board),
+      setCPUShips(tempPlayer2Ships),
+      setCPUShipsPositions(tempPlayer2ShipsPositions)
+    );
   }
 
   function placeCPUShips() {
     // Not really random positions but won't be ease
     // to user understand the logic behind the CPU
     // ships positions just by playing
-    console.log('player2Board', player2Board);
-    console.log('player2ShipsPositions', player2ShipsPositions);
-    console.log('player2Ships', player2Ships);
-    placeShipInArea(4, 'Carrier', 1, 6, 1, 6, player2Board, player2ShipsPositions, player2Ships);
-
-    console.log('player2Board', player2Board);
-    console.log('player2ShipsPositions', player2ShipsPositions);
-    console.log('player2Ships', player2Ships);
-    placeShipInArea(3, 'Cruiser #1', 7, columns, 1, 4, player2Board, player2ShipsPositions, player2Ships);
-
-    console.log('player2Board', player2Board);
-    console.log('player2ShipsPositions', player2ShipsPositions);
-    console.log('player2Ships', player2Ships);
-    placeShipInArea(3, 'Cruiser #2', 1, 5, 7, rows, player2Board, player2ShipsPositions, player2Ships);
-
-    console.log('player2Board', player2Board);
-    console.log('player2ShipsPositions', player2ShipsPositions);
-    console.log('player2Ships', player2Ships);
-    placeShipInArea(3, 'Cruiser #3', 6, columns, 7, rows, player2Board, player2ShipsPositions, player2Ships);
-
-    console.log('player2Board', player2Board);
-    console.log('player2ShipsPositions', player2ShipsPositions);
-    console.log('player2Ships', player2Ships);
-    placeShipInArea(2, 'Submarine', 7, columns, 5, 6, player2Board, player2ShipsPositions, player2Ships);
+    placeShipInArea(4, 'Carrier', 1, 6, 1, 6, CPUBoard, CPUShipsPositions, CPUShips);
+    placeShipInArea(3, 'Cruiser #1', 7, columns, 1, 4, CPUBoard, CPUShipsPositions, CPUShips);
+    placeShipInArea(3, 'Cruiser #2', 1, 5, 7, rows, CPUBoard, CPUShipsPositions, CPUShips);
+    placeShipInArea(3, 'Cruiser #3', 6, columns, 7, rows, CPUBoard, CPUShipsPositions, CPUShips);
+    placeShipInArea(2, 'Submarine', 7, columns, 5, 6, CPUBoard, CPUShipsPositions, CPUShips);
   }
 
   function resetShipsPlacementBoard() {
@@ -398,8 +388,8 @@ export default function PlaceShips() {
       tempPlayer1ShipsPositions.push(...ship.position)
     ));
     dispatch(setPlayer1ShipsPositions(tempPlayer1ShipsPositions));
+    const tempPlayer2ShipsPositions = JSON.parse(JSON.stringify(player2ShipsPositions));
     if (!playingAgainstCPU) {
-      const tempPlayer2ShipsPositions = JSON.parse(JSON.stringify(player2ShipsPositions));
       player2Ships.map((ship) => (
         tempPlayer2ShipsPositions.push(...ship.position)
       ));
@@ -411,8 +401,8 @@ export default function PlaceShips() {
       tempPlayer1Board[id].hasShip = true;
     });
     dispatch(setPlayer1Board(tempPlayer1Board));
+    const tempPlayer2Board = JSON.parse(JSON.stringify(player2Board));
     if (!playingAgainstCPU) {
-      const tempPlayer2Board = JSON.parse(JSON.stringify(player2Board));
       tempPlayer2ShipsPositions.forEach((id) => {
         tempPlayer2Board[id].hasShip = true;
       });
@@ -425,7 +415,7 @@ export default function PlaceShips() {
       resetShipsPlacementBoard();
       placeCPUShips();
     }
-    // navigate('/game');
+    navigate('/game');
   }
 
   const goToGameButton = <button type="button" onClick={() => handleStartGame()}>Go to game</button>;
@@ -439,14 +429,11 @@ export default function PlaceShips() {
             const key = `SHIPS_PLACEMENT_BOARD_CELL_${index}`;
             return (
               <div
-                className="board-cell"
+                className={`board-cell ${cell.isPreSelected ? 'is-pre-selected' : ''} ${cell.hasShip ? 'has-ship-placed' : ''}`}
                 key={key}
                 onMouseEnter={() => (currentShipSize ? findShipPosition(cell, shipsPlacementBoard, currentShipSize, columns, rows, orientation) : null)}
                 onClick={() => setShipPosition()}
-              >
-                {cell.isPreSelected ? '-' : ''}
-                {cell.hasShip ? 'x' : ''}
-              </div>
+              />
             );
           })}
         </div>
